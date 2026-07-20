@@ -1,36 +1,138 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SeniorEase
 
-## Getting Started
+Plataforma Web e Mobile criada para facilitar a organização de atividades acadêmicas, profissionais e pessoais de pessoas idosas. O objetivo é oferecer uma experiência digital simples, acessível, previsível e segura, promovendo autonomia, confiança e inclusão digital.
 
-First, run the development server:
+## Problema
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Muitas pessoas idosas enfrentam dificuldades com aplicativos que possuem interfaces complexas, letras pequenas, navegação confusa e falta de suporte a acessibilidade. O SeniorEase resolve isso oferecendo uma plataforma com design adaptável, navegação simplificada e feedback claro em cada ação.
+
+## Landing Page
+
+Esta primeira etapa implementa a landing page pública da versão Web, contendo:
+- Cabeçalho com navegação e menu mobile acessível
+- Seção Hero com chamada principal
+- Recursos e benefícios
+- Como funciona (passo a passo)
+- Demonstração interativa de personalização (fonte, contraste, espaçamento)
+- Exemplos de feedback e confirmação
+- Recursos de acessibilidade
+- Perguntas frequentes (accordion)
+- Chamada final para ação
+- Rodapé com links e ano dinâmico
+
+## Tecnologias
+
+- [Next.js](https://nextjs.org/) 16 — App Router, React 19
+- [TypeScript](https://www.typescriptlang.org/) — tipagem completa
+- [Tailwind CSS](https://tailwindcss.com/) v4 — estilização com tokens
+- [Lucide React](https://lucide.dev/) — ícones
+- [Storybook](https://storybook.js.org/) — documentação de componentes
+- [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/) — testes
+- [ESLint](https://eslint.org/) + [Prettier](https://prettier.io/) — qualidade de código
+
+## Arquitetura do projeto
+
+```
+src/
+├── app/                    # Next.js App Router
+├── modules/
+│   └── landing/            # Landing page (seções, dados, tipos)
+├── presentation/
+│   ├── components/
+│   │   ├── ui/             # Design System (Button, Card, Accordion...)
+│   │   ├── layout/         # Navbar, Footer, Container...
+│   │   └── accessibility/  # SkipLink, LiveRegion, AccessibilityControl
+│   ├── hooks/              # useAccessibility
+│   └── providers/          # AccessibilityProvider
+├── shared/
+│   ├── constants/          # Tokens, navegação
+│   ├── types/              # Tipos globais
+│   └── utils/              # cn (classnames)
+└── stories/                # Storybook stories
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Princípios de componentização
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Componentes pequenos e com responsabilidade única
+- Dados estáticos separados da renderização
+- Lógica de estado separada da apresentação
+- Tipagem TypeScript completa (sem `any`)
+- Props extensíveis via `className`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Design System
 
-## Learn More
+| Componente | Variantes |
+|---|---|
+| Button | primary, secondary, outline, ghost; normal, large |
+| Card | default, elevated, outlined |
+| FeatureCard | ícone + título + descrição |
+| StepCard | número + título + descrição |
+| Badge | success, info, warning, neutral |
+| Accordion | suporte a múltiplos abertos |
+| Container | sm, md, lg, xl |
+| Section | default, primary-light, accent-light, dark |
 
-To learn more about Next.js, take a look at the following resources:
+### Decisões de acessibilidade
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- HTML semântico com landmarks (`header`, `nav`, `main`, `section`, `footer`)
+- Hierarquia correta de headings (único `h1`)
+- Link "Pular para o conteúdo principal" como primeiro elemento focalizável
+- Navegação completa por teclado (Tab, Enter, Escape)
+- `aria-expanded` e `aria-controls` no menu mobile e accordion
+- `aria-live` para feedback de alterações de preferência
+- `prefers-reduced-motion` respeitado
+- Foco visível com `focus-visible`
+- Áreas clicáveis com tamanho mínimo de 44px
+- Contraste ajustável em 3 níveis
+- Nenhuma informação comunicada apenas por cor
+- Suporte a zoom de 200% sem quebra de layout
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Instalação
 
-## Deploy on Vercel
+```bash
+pnpm install
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Execução
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# Desenvolvimento
+pnpm dev
+
+# Build de produção
+pnpm build
+
+# Iniciar servidor de produção
+pnpm start
+```
+
+## Testes
+
+```bash
+pnpm test        # Executa uma vez
+pnpm test:watch  # Modo watch
+```
+
+## Storybook
+
+```bash
+pnpm storybook
+```
+
+Acesse em http://localhost:6006
+
+## Lint e formatação
+
+```bash
+pnpm lint       # ESLint
+pnpm format     # Prettier
+```
+
+## Próximos passos
+
+- [ ] Autenticação (login/cadastro) com Supabase
+- [ ] Dashboard do usuário
+- [ ] CRUD de atividades
+- [ ] Perfil e configurações
+- [ ] Histórico de atividades
+- [ ] Aplicativo mobile React Native
