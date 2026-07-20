@@ -41,8 +41,12 @@ export function useLogin() {
       setApiError('')
 
       try {
-        await authUseCases.signInUser(data.email, data.password, data.rememberMe ?? false)
-        router.push('/dashboard')
+        const user = await authUseCases.signInUser(data.email, data.password, data.rememberMe ?? false)
+        if (!user.emailVerified) {
+          router.push('/verificar-email')
+        } else {
+          router.push('/dashboard')
+        }
       } catch (error) {
         const message = translateAuthError(error)
         setApiError(message)

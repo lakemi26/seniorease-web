@@ -35,10 +35,10 @@ function OptionButton({ selected, onClick, label }: OptionButtonProps) {
       aria-checked={selected}
       onClick={onClick}
       className={cn(
-        'px-3 py-1.5 text-sm rounded-md border transition-colors duration-normal cursor-pointer min-h-[2.5rem] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
+        'px-3 py-1.5 text-sm rounded-md border transition-colors duration-normal cursor-pointer min-h-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
         selected
           ? 'bg-primary text-white border-primary'
-          : 'bg-surface text-text-secondary border-border hover:border-primary hover:text-primary'
+          : 'bg-surface text-text-secondary border-border hover:border-primary hover:text-primary',
       )}
     >
       {label}
@@ -81,7 +81,9 @@ export function AccessibilityControl() {
             selected={fontSize === option}
             onClick={() => {
               setFontSize(option)
-              handleChange(`Tamanho do texto: ${option === 'normal' ? 'Normal' : option === 'large' ? 'Grande' : 'Muito grande'}`)
+              handleChange(
+                `Tamanho do texto: ${option === 'normal' ? 'Normal' : option === 'large' ? 'Grande' : 'Muito grande'}`,
+              )
             }}
             label={option === 'normal' ? 'Normal' : option === 'large' ? 'Grande' : 'Muito grande'}
           />
@@ -95,7 +97,9 @@ export function AccessibilityControl() {
             selected={contrast === option}
             onClick={() => {
               setContrast(option)
-              handleChange(`Contraste: ${option === 'normal' ? 'Padrão' : option === 'high' ? 'Alto contraste' : 'Escuro'}`)
+              handleChange(
+                `Contraste: ${option === 'normal' ? 'Padrão' : option === 'high' ? 'Alto contraste' : 'Escuro'}`,
+              )
             }}
             label={option === 'normal' ? 'Padrão' : option === 'high' ? 'Alto contraste' : 'Escuro'}
           />
@@ -137,7 +141,9 @@ export function AccessibilityControl() {
             selected={motion === option}
             onClick={() => {
               setMotion(option)
-              handleChange(`Movimento: ${option === 'normal' ? 'Animações ativadas' : 'Reduzir animações'}`)
+              handleChange(
+                `Movimento: ${option === 'normal' ? 'Animações ativadas' : 'Reduzir animações'}`,
+              )
             }}
             label={option === 'normal' ? 'Animações ativadas' : 'Reduzir animações'}
           />

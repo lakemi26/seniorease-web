@@ -19,7 +19,7 @@ export function CTASection() {
             Crie sua conta e configure o SeniorEase de acordo com as suas necessidades.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
-            <Button variant="primary" size="large" onClick={() => router.push('/primeiro-acesso')}>
+            <Button variant="primary" size="large" onClick={() => router.push('/cadastro')}>
               Criar minha conta
             </Button>
             <Button variant="outline" size="large" onClick={() => router.push('/login')}>

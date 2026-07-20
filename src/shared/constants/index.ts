@@ -11,6 +11,7 @@ export const NAV_LINKS: NavLink[] = [
   { label: 'Recursos', href: '#recursos' },
   { label: 'Acessibilidade', href: '#acessibilidade' },
   { label: 'Ajuda', href: '#ajuda' },
+  { label: 'Entrar', href: '/login' },
 ]
 
 export const FOOTER_LINKS: NavLink[] = [

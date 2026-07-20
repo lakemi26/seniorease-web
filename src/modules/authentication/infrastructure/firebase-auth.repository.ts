@@ -1,7 +1,11 @@
 import {
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   sendPasswordResetEmail,
+  sendEmailVerification as firebaseSendEmailVerification,
+  reload as firebaseReload,
+  updateProfile as firebaseUpdateProfile,
   onAuthStateChanged,
   setPersistence,
   browserLocalPersistence,
@@ -36,12 +40,30 @@ export function createFirebaseAuthRepository(): IAuthRepository {
     return credential.user
   }
 
+  async function signUp(email: string, password: string): Promise<User> {
+    const auth = getAuth()
+    const credential = await createUserWithEmailAndPassword(auth, email, password)
+    return credential.user
+  }
+
   async function signOut(): Promise<void> {
     return firebaseSignOut(getAuth())
   }
 
   async function sendPasswordReset(email: string): Promise<void> {
     return sendPasswordResetEmail(getAuth(), email)
+  }
+
+  async function sendEmailVerification(user: User): Promise<void> {
+    return firebaseSendEmailVerification(user)
+  }
+
+  async function reloadUser(user: User): Promise<void> {
+    return firebaseReload(user)
+  }
+
+  async function updateFirebaseProfile(user: User, data: { displayName?: string }): Promise<void> {
+    return firebaseUpdateProfile(user, data)
   }
 
   function getCurrentUser(): User | null {
@@ -69,6 +91,7 @@ export function createFirebaseAuthRepository(): IAuthRepository {
     const profile: Record<string, unknown> = {
       name: data.name,
       email: data.email,
+      emailVerified: false,
       firstAccessCompleted: false,
       onboardingStep: 1,
       createdAt: serverTimestamp(),
@@ -105,8 +128,12 @@ export function createFirebaseAuthRepository(): IAuthRepository {
 
   return {
     signIn,
+    signUp,
     signOut,
     sendPasswordReset,
+    sendEmailVerification,
+    reloadUser,
+    updateFirebaseProfile,
     getCurrentUser,
     onAuthStateChanged: onAuthStateChangedHandler,
     getUserProfile,

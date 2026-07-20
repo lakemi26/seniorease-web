@@ -32,7 +32,7 @@ export function Hero() {
               importantes de forma simples, acessível e segura.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <Button variant="primary" size="large" onClick={() => router.push('/primeiro-acesso')}>
+              <Button variant="primary" size="large" onClick={() => router.push('/cadastro')}>
                 Começar agora
               </Button>
               <Button variant="outline" size="large" onClick={handleScrollToHowItWorks}>

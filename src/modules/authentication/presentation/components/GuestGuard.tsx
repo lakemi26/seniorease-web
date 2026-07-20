@@ -10,20 +10,22 @@ interface GuestGuardProps {
 }
 
 export function GuestGuard({ children }: GuestGuardProps) {
-  const { isAuthenticated, isLoading, profile } = useAuth()
+  const { user, isAuthenticated, isLoading, profile } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
     if (isLoading) return
 
     if (isAuthenticated) {
-      if (profile?.firstAccessCompleted) {
+      if (!user?.emailVerified) {
+        router.replace('/verificar-email')
+      } else if (profile?.firstAccessCompleted) {
         router.replace('/dashboard')
       } else {
         router.replace('/primeiro-acesso')
       }
     }
-  }, [isAuthenticated, isLoading, profile, router])
+  }, [isAuthenticated, isLoading, user, profile, router])
 
   if (isLoading) {
     return <PageLoader message="Carregando suas informações." />

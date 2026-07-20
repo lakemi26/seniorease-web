@@ -2,6 +2,7 @@ export interface UserProfile {
   id: string
   name: string
   email: string
+  emailVerified: boolean
   firstAccessCompleted: boolean
   onboardingStep: number
   createdAt: string

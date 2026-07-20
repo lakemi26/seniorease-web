@@ -86,13 +86,23 @@ export function LoginForm() {
         </LoadingButton>
       </div>
 
-      <div className="text-center">
+      <div className="flex flex-col items-center gap-3">
         <a
           href="/recuperar-senha"
           className="text-sm text-primary hover:text-primary-dark underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus rounded-sm"
         >
           Esqueci minha senha
         </a>
+
+        <p className="text-sm text-text-secondary">
+          Não tem uma conta?{' '}
+          <a
+            href="/cadastro"
+            className="text-primary hover:text-primary-dark underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus rounded-sm"
+          >
+            Criar conta
+          </a>
+        </p>
       </div>
     </form>
   )
