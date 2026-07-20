@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Hero } from '@/modules/landing/components/Hero'
@@ -7,6 +7,10 @@ import { Footer } from '@/presentation/components/layout/Footer'
 import { Navbar } from '@/presentation/components/layout/Navbar'
 import { SkipLink } from '@/presentation/components/accessibility/SkipLink'
 import { AccessibilityProvider } from '@/presentation/providers/AccessibilityProvider'
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}))
 
 function renderWithProvider(ui: React.ReactElement) {
   return render(<AccessibilityProvider>{ui}</AccessibilityProvider>)

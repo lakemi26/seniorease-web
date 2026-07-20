@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { CheckCircle } from 'lucide-react'
 import { Container } from '@/presentation/components/layout/Container'
 import { Button } from '@/presentation/components/ui/Button'
@@ -11,6 +12,8 @@ const miniBenefits = [
 ]
 
 export function Hero() {
+  const router = useRouter()
+
   const handleScrollToHowItWorks = () => {
     const el = document.getElementById('como-funciona')
     el?.scrollIntoView({ behavior: 'smooth' })
@@ -29,7 +32,7 @@ export function Hero() {
               importantes de forma simples, acessível e segura.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <Button variant="primary" size="large">
+              <Button variant="primary" size="large" onClick={() => router.push('/primeiro-acesso')}>
                 Começar agora
               </Button>
               <Button variant="outline" size="large" onClick={handleScrollToHowItWorks}>

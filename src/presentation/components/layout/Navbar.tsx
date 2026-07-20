@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Menu } from 'lucide-react'
 import { NAV_LINKS } from '@/shared/constants'
 import { Logo } from './Logo'
@@ -9,6 +10,7 @@ import { Button } from '@/presentation/components/ui/Button'
 import { IconButton } from '@/presentation/components/ui/IconButton'
 
 export function Navbar() {
+  const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const openMenu = useCallback(() => setIsMobileMenuOpen(true), [])
@@ -41,7 +43,7 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="normal" className="hidden md:inline-flex">
+            <Button variant="outline" size="normal" className="hidden md:inline-flex" onClick={() => router.push('/login')}>
               Entrar
             </Button>
             <IconButton
