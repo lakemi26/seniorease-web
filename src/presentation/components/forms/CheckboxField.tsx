@@ -35,7 +35,7 @@ export function CheckboxField({
         onChange={(e) => onChange?.(e.target.checked)}
         disabled={disabled}
         className={cn(
-          'mt-0.5 w-5 h-5 rounded border-border bg-surface text-primary',
+          'w-5 h-5 rounded border-border bg-surface text-primary',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'cursor-pointer shrink-0'
