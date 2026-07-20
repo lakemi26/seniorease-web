@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { AccessibilityProvider } from '@/presentation/providers/AccessibilityProvider'
+import { AuthProvider } from '@/presentation/providers/AuthProvider'
+import { SkipLink } from '@/presentation/components/accessibility/SkipLink'
 import { SITE_TITLE, SITE_DESCRIPTION } from '@/shared/constants'
 import './globals.css'
 
@@ -32,9 +34,12 @@ export default function RootLayout({
       className={`${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <AccessibilityProvider>
-          {children}
-        </AccessibilityProvider>
+        <SkipLink />
+        <AuthProvider>
+          <AccessibilityProvider>
+            {children}
+          </AccessibilityProvider>
+        </AuthProvider>
       </body>
     </html>
   )
