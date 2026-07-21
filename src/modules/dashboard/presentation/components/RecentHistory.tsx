@@ -31,7 +31,7 @@ export function RecentHistory({ activities }: RecentHistoryProps) {
             <li key={activity.id}>
               <button
                 type="button"
-                onClick={() => router.push(`/atividades?id=${activity.id}`)}
+                onClick={() => router.push(`/atividades?modal=detalhes&id=${activity.id}`)}
                 className="w-full text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus rounded-md"
               >
                 <ActivityListItem activity={activity} />

@@ -4,7 +4,7 @@ import { Card } from '@/presentation/components/ui/Card'
 import { Button } from '@/presentation/components/ui/Button'
 import { ActivityStatusBadge } from '@/modules/activities/presentation/components/ActivityStatusBadge'
 import { EmptyState } from './EmptyState'
-import { formatDate, formatTime, completedStepsCount } from '@/modules/activities/presentation/utils/activity.utils'
+import { formatDate, formatTime, completedStepsCount, getCategoryLabel } from '@/modules/activities/presentation/utils/activity.utils'
 import type { Activity } from '@/modules/activities/domain/entities'
 
 interface NextActivityCardProps {
@@ -40,11 +40,12 @@ export function NextActivityCard({ activity, onViewActivity, onAddActivity }: Ne
 
         <h3 className="text-xl font-semibold text-text">{activity.title}</h3>
 
-        <p className="text-sm text-text-muted">{activity.category}</p>
+        <p className="text-sm text-text-muted">{getCategoryLabel(activity.category)}</p>
 
         {activity.scheduledAt && (
           <p className="text-sm text-text-secondary">
-            {formatDate(activity.scheduledAt)} às {formatTime(activity.scheduledAt)}
+            {formatDate(activity.scheduledAt)}
+            {activity.hasTime ? <> às {formatTime(activity.scheduledAt)}</> : ''}
           </p>
         )}
 

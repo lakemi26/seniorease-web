@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AuthGuard } from '@/modules/authentication/presentation/components/AuthGuard'
 import { useAuth } from '@/presentation/hooks/useAuth'
@@ -19,10 +18,8 @@ import { ReminderList } from '@/modules/dashboard/presentation/components/Remind
 import { RecentHistory } from '@/modules/dashboard/presentation/components/RecentHistory'
 import { HelpCard } from '@/modules/dashboard/presentation/components/HelpCard'
 import { LiveRegion } from '@/presentation/components/accessibility/LiveRegion'
-import { CreateActivityModal } from '@/modules/activities/presentation/components/CreateActivityModal'
 
 function DashboardInner() {
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const { user, profile } = useAuth()
   const { interface: interfaceMode } = useAccessibility()
   const {
@@ -31,7 +28,12 @@ function DashboardInner() {
     inProgressActivities,
     recentCompleted,
     weeklySummary,
+    dueReminders,
+    remindersLoading,
+    remindersError,
+    dismissingId,
     remindersEnabled,
+    dismissReminder,
     loading,
     error,
     retry,
@@ -69,32 +71,42 @@ function DashboardInner() {
 
         <NextActivityCard
           activity={nextActivity}
-          onViewActivity={() => nextActivity && router.push(`/atividades?id=${nextActivity.id}`)}
-          onAddActivity={() => setIsCreateModalOpen(true)}
+          onViewActivity={() => nextActivity && router.push(
+            nextActivity.status === 'inProgress'
+              ? `/atividades?modal=executar&id=${nextActivity.id}`
+              : `/atividades?modal=detalhes&id=${nextActivity.id}`
+          )}
+          onAddActivity={() => router.push('/atividades?modal=nova')}
         />
 
         <TodayActivitiesSection
           activities={todayActivities}
-          onViewActivity={(id) => router.push(`/atividades?id=${id}`)}
-          onAddActivity={() => setIsCreateModalOpen(true)}
+          onViewActivity={(id) => router.push(`/atividades?modal=detalhes&id=${id}`)}
+          onAddActivity={() => router.push('/atividades?modal=nova')}
         />
 
-        <QuickActions onAddActivity={() => setIsCreateModalOpen(true)} />
+        <QuickActions onAddActivity={() => router.push('/atividades?modal=nova')} />
 
         {inProgressActivities.length > 0 && (
           <ContinueActivitySection
             activities={inProgressActivities.slice(0, maxInProgress)}
             maxItems={maxInProgress}
-            onContinue={(id) => router.push(`/atividades?id=${id}`)}
+            onContinue={(id) => router.push(`/atividades?modal=executar&id=${id}`)}
           />
         )}
 
         {isComplete && weeklySummary && <WeeklyProgressCard summary={weeklySummary} />}
 
-        {isComplete && remindersEnabled && (
+        {remindersEnabled && (
           <ReminderList
-            activities={todayActivities.filter((a) => a.status !== 'completed')}
-            onViewActivity={(id) => router.push(`/atividades?id=${id}`)}
+            reminders={dueReminders}
+            loading={remindersLoading}
+            error={remindersError}
+            dismissingId={dismissingId}
+            onView={(id) => router.push(`/atividades?modal=detalhes&id=${id}&from=dashboard`)}
+            onContinue={(id) => router.push(`/atividades?modal=executar&id=${id}&from=dashboard`)}
+            onDismiss={dismissReminder}
+            maxItems={isComplete ? 5 : 3}
           />
         )}
 
@@ -102,8 +114,6 @@ function DashboardInner() {
 
         <HelpCard hasActivities={hasActivities} />
       </div>
-
-      <CreateActivityModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
     </DashboardLayout>
   )
 }
