@@ -19,7 +19,8 @@ const baseNavItems: NavItem[] = [
 ]
 
 const completeNavItems: NavItem[] = [
-  ...baseNavItems.slice(0, 2),
+  { href: '/dashboard', label: 'Início', icon: <Home className="w-5 h-5" aria-hidden="true" /> },
+  { href: '/atividades', label: 'Atividades', icon: <ListTodo className="w-5 h-5" aria-hidden="true" /> },
   { href: '/calendario', label: 'Calendário', icon: <Calendar className="w-5 h-5" aria-hidden="true" /> },
   { href: '/historico', label: 'Histórico', icon: <History className="w-5 h-5" aria-hidden="true" /> },
   { href: '/ajuda', label: 'Ajuda', icon: <HelpCircle className="w-5 h-5" aria-hidden="true" /> },

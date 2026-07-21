@@ -8,7 +8,7 @@ import { cn } from '@/shared/utils/cn'
 const mobileNavItems = [
   { href: '/dashboard', label: 'Início', icon: <Home className="w-5 h-5" aria-hidden="true" /> },
   { href: '/atividades', label: 'Atividades', icon: <ListTodo className="w-5 h-5" aria-hidden="true" /> },
-  { href: '/atividades/nova', label: 'Nova', icon: <Plus className="w-5 h-5" aria-hidden="true" /> },
+  { href: '/atividades?modal=nova', label: 'Nova', icon: <Plus className="w-5 h-5" aria-hidden="true" /> },
   { href: '/ajuda', label: 'Ajuda', icon: <HelpCircle className="w-5 h-5" aria-hidden="true" /> },
   { href: '/perfil', label: 'Perfil', icon: <User className="w-5 h-5" aria-hidden="true" /> },
 ]

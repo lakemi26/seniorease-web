@@ -13,7 +13,7 @@ interface ActionItem {
 }
 
 const baseActions: ActionItem[] = [
-  { icon: <Plus className="w-6 h-6" aria-hidden="true" />, title: 'Nova atividade', description: 'Criar uma nova atividade', href: '/atividades/nova' },
+  { icon: <Plus className="w-6 h-6" aria-hidden="true" />, title: 'Nova atividade', description: 'Criar uma nova atividade', href: '/atividades?modal=nova' },
   { icon: <ListTodo className="w-6 h-6" aria-hidden="true" />, title: 'Minhas atividades', description: 'Ver todas as atividades', href: '/atividades' },
   { icon: <HelpCircle className="w-6 h-6" aria-hidden="true" />, title: 'Abrir ajuda', description: 'Tirar dúvidas', href: '/ajuda' },
 ]
@@ -45,7 +45,7 @@ export function QuickActions({ onAddActivity }: QuickActionsProps) {
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {actions.map((action) => {
-          const isNewActivity = action.href === '/atividades/nova'
+          const isNewActivity = action.href === '/atividades?modal=nova'
           return (
             <button
               key={action.href}
