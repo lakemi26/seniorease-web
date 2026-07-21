@@ -22,7 +22,9 @@ import {
 import { getFirebaseAuth } from '@/infrastructure/firebase/firebase.auth'
 import { getFirebaseFirestore } from '@/infrastructure/firebase/firebase.firestore'
 import type { IAuthRepository } from '../domain/repositories'
-import type { UserProfile, UserPreferences } from '../domain/entities'
+import type { UserProfile } from '../domain/entities'
+import type { UserPreferences } from '../domain/entities'
+import { DEFAULT_USER_PREFERENCES } from '../domain/entities'
 import { mapUserProfile } from '../domain/mappers'
 
 export function createFirebaseAuthRepository(): IAuthRepository {
@@ -150,6 +152,37 @@ export function createFirebaseAuthRepository(): IAuthRepository {
     }, { merge: true })
   }
 
+  function subscribeToUserPreferences(
+    uid: string,
+    onData: (preferences: UserPreferences | null) => void,
+    onError: (error: Error) => void,
+  ): () => void {
+    const db = getDb()
+    const docRef = doc(db, 'userPreferences', uid)
+    return onSnapshot(
+      docRef,
+      (snapshot) => {
+        if (!snapshot.exists()) {
+          onData(null)
+          return
+        }
+        onData(snapshot.data() as UserPreferences)
+      },
+      (error) => {
+        onError(error)
+      },
+    )
+  }
+
+  async function resetUserPreferences(uid: string): Promise<void> {
+    const db = getDb()
+    const docRef = doc(db, 'userPreferences', uid)
+    await setDoc(docRef, {
+      ...DEFAULT_USER_PREFERENCES,
+      updatedAt: serverTimestamp(),
+    }, { merge: true })
+  }
+
   return {
     signIn,
     signUp,
@@ -165,5 +198,7 @@ export function createFirebaseAuthRepository(): IAuthRepository {
     updateUserName,
     getUserPreferences,
     saveUserPreferences,
+    subscribeToUserPreferences,
+    resetUserPreferences,
   }
 }

@@ -22,4 +22,12 @@ export interface IAuthRepository {
 
   getUserPreferences(uid: string): Promise<UserPreferences | null>
   saveUserPreferences(uid: string, preferences: UserPreferences): Promise<void>
+
+  subscribeToUserPreferences(
+    uid: string,
+    onData: (preferences: UserPreferences | null) => void,
+    onError: (error: Error) => void,
+  ): () => void
+
+  resetUserPreferences(uid: string): Promise<void>
 }

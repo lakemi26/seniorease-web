@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { AccessibilityProvider } from '@/presentation/providers/AccessibilityProvider'
 import { AuthProvider } from '@/presentation/providers/AuthProvider'
+import { PreferencesProvider } from '@/presentation/providers/PreferencesProvider'
 import { SITE_TITLE, SITE_DESCRIPTION } from '@/shared/constants'
 import './globals.css'
 
@@ -34,9 +35,11 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <AuthProvider>
-          <AccessibilityProvider>
-            {children}
-          </AccessibilityProvider>
+          <PreferencesProvider>
+            <AccessibilityProvider>
+              {children}
+            </AccessibilityProvider>
+          </PreferencesProvider>
         </AuthProvider>
       </body>
     </html>

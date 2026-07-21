@@ -75,6 +75,18 @@ export function createAuthUseCases(repository: IAuthRepository) {
     return repository.saveUserPreferences(uid, preferences)
   }
 
+  function subscribeToUserPreferences(
+    uid: string,
+    onData: (preferences: UserPreferences | null) => void,
+    onError: (error: Error) => void,
+  ): () => void {
+    return repository.subscribeToUserPreferences(uid, onData, onError)
+  }
+
+  async function resetUserPreferences(uid: string): Promise<void> {
+    return repository.resetUserPreferences(uid)
+  }
+
   return {
     signInUser,
     signUpUser,
@@ -88,5 +100,7 @@ export function createAuthUseCases(repository: IAuthRepository) {
     updateUserProfile,
     getUserPreferences,
     saveUserPreferences,
+    subscribeToUserPreferences,
+    resetUserPreferences,
   }
 }

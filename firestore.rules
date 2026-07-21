@@ -20,9 +20,24 @@ service cloud.firestore {
     }
 
     match /userPreferences/{userId} {
-      allow read, update: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null && request.auth.uid == userId;
       allow delete: if false;
+
+      allow update: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                        .hasOnly(["fontSize", "contrast", "spacing", "interfaceMode",
+                                  "enhancedFeedback", "confirmCriticalActions",
+                                  "reduceMotion", "remindersEnabled", "updatedAt"])
+                    && request.resource.data.fontSize in ["normal", "large", "extraLarge"]
+                    && request.resource.data.contrast in ["default", "high", "dark"]
+                    && request.resource.data.spacing in ["normal", "expanded"]
+                    && request.resource.data.interfaceMode in ["basic", "complete"]
+                    && request.resource.data.enhancedFeedback in [true, false]
+                    && request.resource.data.confirmCriticalActions in [true, false]
+                    && request.resource.data.reduceMotion in [true, false]
+                    && request.resource.data.remindersEnabled in [true, false];
     }
 
     match /activities/{docId} {
