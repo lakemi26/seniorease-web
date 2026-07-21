@@ -4,9 +4,19 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     match /users/{userId} {
-      allow read, update: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null && request.auth.uid == userId;
       allow delete: if false;
+
+      allow update: if request.auth != null
+                    && request.auth.uid == userId
+                    && (
+                      request.resource.data.diff(resource.data).affectedKeys()
+                        .hasOnly(["name", "updatedAt"])
+                      ||
+                      request.resource.data.diff(resource.data).affectedKeys()
+                        .hasAny(["onboardingStep"])
+                    );
     }
 
     match /userPreferences/{userId} {

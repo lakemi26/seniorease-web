@@ -94,20 +94,39 @@ Para ativar login por email/senha:
 1. No console, vá em **Authentication > Sign-in method**
 2. Ative o provedor **Email/Senha**
 
+### 8. Perfil do usuário
+
+A página `/perfil` está implementada e exibe:
+
+- Nome (editável)
+- E-mail (somente leitura)
+- Data de criação da conta
+- Redefinição de senha (envio de link por e-mail)
+- Atalho para personalização da experiência (`/configuracoes`)
+- Logout com confirmação
+
+A edição do nome mantém sincronia entre Firestore e Firebase Authentication.
+
+A aplicação não utiliza verificação de e-mail.
+
 ## Arquitetura do projeto
 
 ```
 src/
 ├── app/                    # Next.js App Router
 ├── modules/
-│   └── landing/            # Landing page (seções, dados, tipos)
+│   ├── landing/            # Landing page (seções, dados, tipos)
+│   ├── authentication/     # Autenticação, perfil, repositório Firebase
+│   ├── onboarding/         # Primeiro acesso (preferências)
+│   ├── dashboard/          # Dashboard, navegação autenticada
+│   └── activities/         # CRUD de atividades
 ├── presentation/
 │   ├── components/
 │   │   ├── ui/             # Design System (Button, Card, Accordion...)
 │   │   ├── layout/         # Navbar, Footer, Container...
 │   │   └── accessibility/  # SkipLink, LiveRegion, AccessibilityControl
-│   ├── hooks/              # useAccessibility
-│   └── providers/          # AccessibilityProvider
+│   ├── hooks/              # useAccessibility, useAuth
+│   └── providers/          # AccessibilityProvider, AuthProvider
 ├── shared/
 │   ├── constants/          # Tokens, navegação
 │   ├── types/              # Tipos globais
@@ -194,9 +213,18 @@ pnpm format     # Prettier
 
 ## Próximos passos
 
-- [ ] Edição e exclusão de atividades
+- [ ] Exclusão de atividades
 - [ ] Execução guiada (conclusão de etapas individuais)
 - [ ] Notificações push
 - [ ] Histórico detalhado de atividades
 - [ ] Upload de arquivos em atividades
+- [ ] Alteração de foto de perfil
+- [ ] Autenticação social
 - [ ] Aplicativo mobile React Native
+
+### Limitações conhecidas
+
+- Alteração de e-mail não implementada
+- Exclusão de conta não implementada
+- Foto de perfil não implementada
+- Autenticação social não implementada
