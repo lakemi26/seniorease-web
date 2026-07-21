@@ -37,7 +37,7 @@ export function ActivitiesEmptyState({ variant = 'empty' }: ActivitiesEmptyState
       <p className="text-sm text-text-muted mb-6 max-w-sm">
         Adicione sua primeira atividade para começar a organizar sua rotina.
       </p>
-      <Link href="/atividades/nova">
+      <Link href="/atividades?modal=nova">
         <Button variant="primary" size="large">
           Criar primeira atividade
         </Button>

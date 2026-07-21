@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
-import { useCreateActivity } from '../hooks/useCreateActivity'
+import { useActivityForm } from '../hooks/useActivityForm'
 import { FormField } from '@/presentation/components/forms/FormField'
 import { LoadingButton } from '@/presentation/components/feedback/LoadingButton'
 import { AccessibleAlert } from '@/presentation/components/feedback/AccessibleAlert'
@@ -11,13 +11,16 @@ import { PrioritySelector } from './PrioritySelector'
 import { ActivityStepsEditor } from './ActivityStepsEditor'
 import { ReminderSettings } from './ReminderSettings'
 import { formatCharacterCount } from '../utils/activity.utils'
-import Link from 'next/link'
+import type { Activity } from '../../domain/entities'
+
 interface ActivityFormProps {
+  mode?: 'create' | 'edit'
+  initialValues?: Activity
   onSuccess?: () => void
   onCancel?: () => void
 }
 
-export function ActivityForm({ onSuccess, onCancel }: ActivityFormProps) {
+export function ActivityForm({ mode = 'create', initialValues, onSuccess, onCancel }: ActivityFormProps) {
   const {
     register,
     handleSubmit,
@@ -32,7 +35,7 @@ export function ActivityForm({ onSuccess, onCancel }: ActivityFormProps) {
     descriptionValue,
     stepsArray,
     form,
-  } = useCreateActivity(onSuccess)
+  } = useActivityForm({ mode, initialValues, onSuccess })
 
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -200,22 +203,13 @@ export function ActivityForm({ onSuccess, onCancel }: ActivityFormProps) {
         />
 
         <div className="flex flex-col sm:flex-row gap-3 justify-end pt-4 border-t border-border">
-          {onCancel ? (
-            <button
-              type="button"
-              onClick={onCancel}
-              className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium rounded-md border-2 border-border text-text hover:bg-primary-light transition-colors duration-normal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus min-h-[2.75rem]"
-            >
-              Cancelar
-            </button>
-          ) : (
-            <Link
-              href="/atividades"
-              className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium rounded-md border-2 border-border text-text hover:bg-primary-light transition-colors duration-normal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus min-h-[2.75rem]"
-            >
-              Cancelar
-            </Link>
-          )}
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium rounded-md border-2 border-border text-text hover:bg-primary-light transition-colors duration-normal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus min-h-[2.75rem]"
+          >
+            Cancelar
+          </button>
           <LoadingButton
             type="submit"
             variant="primary"

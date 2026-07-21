@@ -1,6 +1,9 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { DashboardPagesLayout } from '../dashboard-pages-layout'
+import { ActivitiesSkeleton } from '@/modules/activities/presentation/components/ActivitiesSkeleton'
 import { AtividadesListWrapper } from './atividades-list-wrapper'
+import { AtividadesSecondaryNav } from './atividades-secondary-nav'
 
 export const metadata: Metadata = {
   title: 'Minhas atividades | SeniorEase',
@@ -16,7 +19,10 @@ export default function AtividadesPage() {
           Acompanhe suas tarefas, compromissos e atividades.
         </p>
       </div>
-      <AtividadesListWrapper />
+      <AtividadesSecondaryNav />
+      <Suspense fallback={<ActivitiesSkeleton />}>
+        <AtividadesListWrapper />
+      </Suspense>
     </DashboardPagesLayout>
   )
 }

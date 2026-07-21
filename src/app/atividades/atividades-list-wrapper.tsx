@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useActivityList } from '@/modules/activities/presentation/hooks/useActivityList'
 import { ActivityFilters } from '@/modules/activities/presentation/components/ActivityFilters'
 import { ActivityCard } from '@/modules/activities/presentation/components/ActivityCard'
@@ -10,11 +11,11 @@ import { LiveRegion } from '@/presentation/components/accessibility/LiveRegion'
 import { sortActivities } from '@/modules/activities/presentation/utils/activity.utils'
 import { Button } from '@/presentation/components/ui/Button'
 import { useAccessibility } from '@/presentation/hooks/useAccessibility'
-import { CreateActivityModal } from '@/modules/activities/presentation/components/CreateActivityModal'
-import { useState } from 'react'
+import { ActivityModalController } from '@/modules/activities/presentation/components/ActivityModalController'
 
 function AtividadesListInner() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const { interface: interfaceMode } = useAccessibility()
   const {
     activities,
@@ -68,7 +69,11 @@ function AtividadesListInner() {
           onSearchChange={setSearchQuery}
           mode={mode}
         />
-        <Button variant="primary" size="normal" onClick={() => setIsModalOpen(true)}>
+        <Button variant="primary" size="normal" onClick={() => {
+          const params = new URLSearchParams(searchParams.toString())
+          params.set('modal', 'nova')
+          router.push(`/atividades?${params.toString()}`)
+        }}>
           Nova atividade
         </Button>
       </div>
@@ -80,13 +85,24 @@ function AtividadesListInner() {
         <div className="flex flex-col gap-3" role="list" aria-label="Lista de atividades">
           {sorted.map((activity) => (
             <div key={activity.id} role="listitem">
-              <ActivityCard activity={activity} />
+              <button
+                type="button"
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams.toString())
+                  params.set('modal', 'detalhes')
+                  params.set('id', activity.id)
+                  router.push(`/atividades?${params.toString()}`)
+                }}
+                className="w-full text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus rounded-md"
+              >
+                <ActivityCard activity={activity} />
+              </button>
             </div>
           ))}
         </div>
       )}
 
-      <CreateActivityModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <ActivityModalController />
     </div>
   )
 }
