@@ -1,4 +1,4 @@
-import { doc, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { getFirebaseFirestore } from '@/infrastructure/firebase/firebase.firestore'
 import type { IOnboardingRepository } from '../domain/repositories'
 import type { OnboardingPreferences } from '../domain/entities'
@@ -14,10 +14,10 @@ export function createFirebaseOnboardingRepository(): IOnboardingRepository {
     const prefsRef = doc(db, 'userPreferences', uid)
 
     await Promise.all([
-      updateDoc(userRef, {
+      setDoc(userRef, {
         onboardingStep: step,
         updatedAt: serverTimestamp(),
-      }),
+      }, { merge: true }),
       setDoc(prefsRef, {
         ...preferences,
         updatedAt: serverTimestamp(),
@@ -31,11 +31,11 @@ export function createFirebaseOnboardingRepository(): IOnboardingRepository {
     const prefsRef = doc(db, 'userPreferences', uid)
 
     await Promise.all([
-      updateDoc(userRef, {
+      setDoc(userRef, {
         firstAccessCompleted: true,
         onboardingStep: 6,
         updatedAt: serverTimestamp(),
-      }),
+      }, { merge: true }),
       setDoc(prefsRef, {
         ...preferences,
         updatedAt: serverTimestamp(),

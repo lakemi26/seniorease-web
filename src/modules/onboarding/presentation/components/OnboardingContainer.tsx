@@ -24,6 +24,7 @@ export function OnboardingContainer() {
     isCompleted,
     nextStep,
     previousStep,
+    goToStep,
     updatePreference,
     completeOnboarding,
     setSaveError,
@@ -54,7 +55,7 @@ export function OnboardingContainer() {
   const currentStepData = steps.find(s => s.id === currentStep)
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl lg:max-w-4xl mx-auto">
       <LiveRegion
         message={`Etapa ${currentStep} de ${totalSteps}: ${currentStepData?.title || ''}`}
       />
@@ -123,10 +124,7 @@ export function OnboardingContainer() {
         {currentStep === 6 && (
           <StepReview
             preferences={preferences}
-            onEditStep={(step) => {
-              const stepEl = document.querySelector(`[data-step="${step}"]`)
-              stepEl?.scrollIntoView({ behavior: 'smooth' })
-            }}
+            onEditStep={(step) => goToStep(step)}
             onComplete={completeOnboarding}
             isSaving={isSaving}
           />

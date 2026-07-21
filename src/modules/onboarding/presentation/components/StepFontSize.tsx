@@ -10,10 +10,10 @@ interface StepFontSizeProps {
   onChange: (value: FontSizeOption) => void
 }
 
-const fontSizeOptions: { value: FontSizeOption; label: string; sample: string; sampleClass: string }[] = [
-  { value: 'normal', label: 'Normal', sample: 'Acompanhe suas atividades.', sampleClass: 'text-sm' },
-  { value: 'large', label: 'Grande', sample: 'Acompanhe suas atividades.', sampleClass: 'text-lg' },
-  { value: 'extraLarge', label: 'Muito grande', sample: 'Acompanhe suas atividades.', sampleClass: 'text-xl' },
+const fontSizeOptions: { value: FontSizeOption; label: string; sample: string; sampleStyle: React.CSSProperties }[] = [
+  { value: 'normal', label: 'Normal', sample: 'Acompanhe suas atividades.', sampleStyle: { fontSize: '1rem' } },
+  { value: 'large', label: 'Grande', sample: 'Acompanhe suas atividades.', sampleStyle: { fontSize: '1.375rem' } },
+  { value: 'extraLarge', label: 'Muito grande', sample: 'Acompanhe suas atividades.', sampleStyle: { fontSize: '1.875rem' } },
 ]
 
 export function StepFontSize({ value, onChange }: StepFontSizeProps) {
@@ -43,7 +43,7 @@ export function StepFontSize({ value, onChange }: StepFontSizeProps) {
               selected={value === option.value}
               onClick={() => onChange(option.value)}
               sampleText={option.sample}
-              sampleClassName={option.sampleClass}
+              sampleStyle={option.sampleStyle}
             />
           ))}
         </div>

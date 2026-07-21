@@ -10,9 +10,9 @@ interface PreviewPanelProps {
 export function PreviewPanel({ className }: PreviewPanelProps) {
   const { fontSize, contrast, spacing, interface: interfaceMode } = useAccessibility()
 
-  const fontSizeClass = fontSize === 'large' ? 'text-lg' : fontSize === 'x-large' ? 'text-xl' : 'text-sm'
+  const fontSizeClass = fontSize === 'large' ? 'text-xl' : fontSize === 'x-large' ? 'text-2xl' : 'text-base'
   const bgClass = contrast === 'dark' ? 'bg-[#161B22] text-[#E6EDF3]' : contrast === 'high' ? 'bg-white text-black' : 'bg-primary-lighter text-text'
-  const spacingClass = spacing === 'wide' ? 'leading-loose' : 'leading-normal'
+  const spacingClass = spacing === 'wide' ? 'leading-relaxed' : 'leading-normal'
 
   return (
     <div

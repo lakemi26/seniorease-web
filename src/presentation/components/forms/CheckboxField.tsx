@@ -32,13 +32,13 @@ export function CheckboxField({
         type="checkbox"
         name={name}
         checked={checked}
-        onChange={(e) => onChange?.(e.target.checked)}
+        onChange={e => onChange?.(e.target.checked)}
         disabled={disabled}
         className={cn(
           'w-5 h-5 rounded border-border bg-surface text-primary',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
           'disabled:opacity-50 disabled:cursor-not-allowed',
-          'cursor-pointer shrink-0'
+          'cursor-pointer',
         )}
         aria-describedby={description ? descriptionId : undefined}
       />
@@ -46,8 +46,8 @@ export function CheckboxField({
         <label
           htmlFor={checkboxId}
           className={cn(
-            'text-sm font-medium text-text cursor-pointer select-none',
-            disabled && 'opacity-50 cursor-not-allowed'
+            'text-sm font-medium text-text cursor-pointer select-none leading-5',
+            disabled && 'opacity-50 cursor-not-allowed',
           )}
         >
           {label}

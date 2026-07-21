@@ -8,9 +8,9 @@ interface AuthCardProps {
 }
 
 const maxWidthStyles = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
+  sm: 'max-w-sm lg:max-w-md',
+  md: 'max-w-md lg:max-w-lg',
+  lg: 'max-w-lg lg:max-w-xl',
 }
 
 export function AuthCard({ children, className, maxWidth = 'md' }: AuthCardProps) {

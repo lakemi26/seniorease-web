@@ -21,7 +21,6 @@ export function createAuthUseCases(repository: IAuthRepository) {
       remindersEnabled: true,
       updatedAt: '',
     })
-    await repository.sendEmailVerification(user)
     return user
   }
 

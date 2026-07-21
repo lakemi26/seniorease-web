@@ -90,7 +90,8 @@ export function useOnboarding() {
 
     try {
       await onboardingUseCases.saveOnboardingProgress(user.uid, state.currentStep, state.preferences)
-    } catch {
+    } catch (error) {
+      console.error('[onboarding] save progress error:', error)
       setSaveError('Não foi possível salvar suas escolhas. Verifique sua conexão e tente novamente.')
     } finally {
       setIsSaving(false)
@@ -121,7 +122,17 @@ export function useOnboarding() {
     value: OnboardingPreferences[K]
   ) => {
     dispatch({ type: 'UPDATE_PREFERENCE', key, value })
-  }, [])
+
+    if (key === 'fontSize') {
+      accessibility.setFontSize(value === 'extraLarge' ? 'x-large' : value as 'normal' | 'large')
+    } else if (key === 'contrast') {
+      accessibility.setContrast(value === 'default' ? 'normal' as const : value as 'high' | 'dark')
+    } else if (key === 'spacing') {
+      accessibility.setSpacing(value === 'expanded' ? 'wide' as const : 'normal' as const)
+    } else if (key === 'interfaceMode') {
+      accessibility.setInterface(value as 'basic' | 'complete')
+    }
+  }, [accessibility])
 
   const completeOnboarding = useCallback(async () => {
     if (!user) return

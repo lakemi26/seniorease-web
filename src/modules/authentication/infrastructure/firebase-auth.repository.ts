@@ -3,8 +3,6 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   sendPasswordResetEmail,
-  sendEmailVerification as firebaseSendEmailVerification,
-  reload as firebaseReload,
   updateProfile as firebaseUpdateProfile,
   onAuthStateChanged,
   setPersistence,
@@ -52,14 +50,6 @@ export function createFirebaseAuthRepository(): IAuthRepository {
 
   async function sendPasswordReset(email: string): Promise<void> {
     return sendPasswordResetEmail(getAuth(), email)
-  }
-
-  async function sendEmailVerification(user: User): Promise<void> {
-    return firebaseSendEmailVerification(user)
-  }
-
-  async function reloadUser(user: User): Promise<void> {
-    return firebaseReload(user)
   }
 
   async function updateFirebaseProfile(user: User, data: { displayName?: string }): Promise<void> {
@@ -131,8 +121,6 @@ export function createFirebaseAuthRepository(): IAuthRepository {
     signUp,
     signOut,
     sendPasswordReset,
-    sendEmailVerification,
-    reloadUser,
     updateFirebaseProfile,
     getCurrentUser,
     onAuthStateChanged: onAuthStateChangedHandler,

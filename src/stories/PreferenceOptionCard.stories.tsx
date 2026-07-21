@@ -27,7 +27,7 @@ export const NaoSelecionado: Story = {
     label: 'Normal',
     selected: false,
     sampleText: 'Acompanhe suas atividades.',
-    sampleClassName: 'text-sm',
+    sampleStyle: { fontSize: '1rem' },
   },
 }
 
@@ -36,7 +36,7 @@ export const Selecionado: Story = {
     label: 'Grande',
     selected: true,
     sampleText: 'Acompanhe suas atividades.',
-    sampleClassName: 'text-lg',
+    sampleStyle: { fontSize: '1.375rem' },
   },
 }
 
@@ -45,6 +45,6 @@ export const MuitoGrande: Story = {
     label: 'Muito grande',
     selected: false,
     sampleText: 'Acompanhe suas atividades.',
-    sampleClassName: 'text-xl',
+    sampleStyle: { fontSize: '1.875rem' },
   },
 }

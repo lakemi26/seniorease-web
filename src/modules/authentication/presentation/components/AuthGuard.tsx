@@ -10,31 +10,20 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children }: AuthGuardProps) {
-  const { user, isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (isLoading) return
-
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       router.replace('/login')
-      return
     }
-
-    if (!user?.emailVerified) {
-      router.replace('/verificar-email')
-    }
-  }, [isAuthenticated, isLoading, user, router])
+  }, [isAuthenticated, isLoading, router])
 
   if (isLoading) {
     return <PageLoader message="Carregando suas informações." />
   }
 
   if (!isAuthenticated) {
-    return <PageLoader message="Redirecionando..." />
-  }
-
-  if (!user?.emailVerified) {
     return <PageLoader message="Redirecionando..." />
   }
 

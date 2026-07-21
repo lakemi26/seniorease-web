@@ -12,10 +12,10 @@ export function CTASection() {
     <Section bgColor="default" ariaLabel="Chamada final">
       <Container maxWidth="xl">
         <div className="flex flex-col items-center text-center gap-6 py-6">
-          <h2 className="text-[var(--font-size-heading-2)] font-bold text-text leading-tight max-w-2xl">
+          <h2 className="text-[var(--font-size-heading-2)] font-bold text-text leading-tight max-w-2xl lg:max-w-4xl">
             Mais clareza para organizar sua rotina.
           </h2>
-          <p className="text-[var(--font-size-body)] text-text-secondary max-w-xl leading-relaxed">
+          <p className="text-[var(--font-size-body)] text-text-secondary max-w-xl lg:max-w-2xl leading-relaxed">
             Crie sua conta e configure o SeniorEase de acordo com as suas necessidades.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">

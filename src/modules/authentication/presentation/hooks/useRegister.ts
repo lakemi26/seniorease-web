@@ -44,7 +44,7 @@ export function useRegister() {
     try {
       await authUseCases.signUpUser(data.email, data.password, data.name)
       setIsSuccess(true)
-      router.push('/verificar-email')
+      router.push('/primeiro-acesso')
     } catch (error) {
       const message = translateRegistrationError(error)
       setApiError(message)

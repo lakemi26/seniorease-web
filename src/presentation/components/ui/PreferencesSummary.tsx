@@ -16,7 +16,7 @@ interface SummaryGroupProps {
 
 function SummaryGroup({ title, step, items, onEdit }: SummaryGroupProps) {
   return (
-    <div className="flex items-start justify-between gap-4 py-3 border-b border-border last:border-b-0">
+    <div className="flex items-start justify-between gap-4 py-2 border-b border-border last:border-b-0">
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-1">
           <h3 className="text-sm font-medium text-text">{title}</h3>
@@ -71,7 +71,7 @@ export function PreferencesSummary({
   className,
 }: PreferencesSummaryProps) {
   return (
-    <div className={cn('bg-surface rounded-lg border border-border divide-y divide-border', className)}>
+    <div className={cn('bg-surface rounded-lg border border-border divide-y divide-border p-4 sm:p-6', className)}>
       <SummaryGroup
         title="Tamanho do texto"
         step={2}

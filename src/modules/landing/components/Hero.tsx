@@ -27,7 +27,7 @@ export function Hero() {
             <h1 className="text-[var(--font-size-heading-1)] font-bold text-text leading-tight">
               Organize suas atividades com mais clareza e tranquilidade.
             </h1>
-            <p className="text-[var(--font-size-body)] text-text-secondary leading-relaxed max-w-xl">
+            <p className="text-[var(--font-size-body)] text-text-secondary leading-relaxed max-w-xl lg:max-w-3xl">
               O SeniorEase ajuda você a acompanhar tarefas, compromissos e etapas
               importantes de forma simples, acessível e segura.
             </p>

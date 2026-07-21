@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { RadioCardGroup } from '@/presentation/components/ui/RadioCardGroup'
+import { PreviewPanel } from '@/presentation/components/ui/PreviewPanel'
 
 type InterfaceOption = 'basic' | 'complete'
 
@@ -45,6 +46,11 @@ export function StepInterfaceMode({ value, onChange }: StepInterfaceModeProps) {
           },
         ]}
       />
+
+      <div className="pt-2">
+        <p className="text-sm font-medium text-text mb-3">Pré-visualização:</p>
+        <PreviewPanel />
+      </div>
     </div>
   )
 }

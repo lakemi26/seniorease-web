@@ -54,7 +54,7 @@ export default function LoginPage() {
         id="main-content"
         className="flex-1 flex items-center justify-center px-4 py-8"
       >
-        <div className="flex w-full max-w-5xl gap-8 items-center">
+        <div className="flex w-full max-w-5xl lg:max-w-7xl gap-8 items-center">
           <LoginIllustration />
 
           <div className="flex-1 flex justify-center">
