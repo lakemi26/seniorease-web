@@ -1,40 +1,75 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useCallback, useEffect } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuth } from '@/presentation/hooks/useAuth'
 import { createFirebaseActivityRepository } from '@/modules/activities/infrastructure/repositories/firebase-activity.repository'
 import { createActivityUseCases } from '@/modules/activities/application/use-cases'
 import { activityFormSchema, type ActivityFormData } from '../schemas/activity.schema'
-import type { ActivityCategory, ActivityPriority } from '../../domain/entities'
+import type { ActivityCategory, ActivityPriority, Activity } from '../../domain/entities'
 
 const repository = createFirebaseActivityRepository()
 const activityUseCases = createActivityUseCases(repository)
 
-export function useCreateActivity(onSuccess?: () => void) {
+function activityToFormValues(activity: Activity): ActivityFormData {
+  const year = activity.scheduledAt.getFullYear()
+  const month = String(activity.scheduledAt.getMonth() + 1).padStart(2, '0')
+  const day = String(activity.scheduledAt.getDate()).padStart(2, '0')
+  const hours = String(activity.scheduledAt.getHours()).padStart(2, '0')
+  const minutes = String(activity.scheduledAt.getMinutes()).padStart(2, '0')
+
+  return {
+    title: activity.title,
+    description: activity.description ?? '',
+    category: activity.category,
+    date: `${year}-${month}-${day}`,
+    hasTime: activity.hasTime,
+    time: activity.hasTime ? `${hours}:${minutes}` : '',
+    priority: activity.priority,
+    steps: activity.steps.map((s) => ({
+      _key: s.id,
+      title: s.title,
+    })),
+    reminderOption: 'none' as const,
+    reminderDate: '',
+    reminderTime: '',
+    confirmPastDate: false,
+  }
+}
+
+export interface UseActivityFormOptions {
+  mode: 'create' | 'edit'
+  initialValues?: Activity
+  onSuccess?: () => void
+}
+
+export function useActivityForm({ mode, initialValues, onSuccess }: UseActivityFormOptions) {
   const { user } = useAuth()
-  const router = useRouter()
   const [apiError, setApiError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+
+  const defaultValues: ActivityFormData = mode === 'edit' && initialValues
+    ? activityToFormValues(initialValues)
+    : {
+        title: '',
+        description: '',
+        category: undefined as unknown as ActivityCategory,
+        date: '',
+        hasTime: true,
+        time: '',
+        priority: 'medium' as ActivityPriority,
+        steps: [],
+        reminderOption: 'none' as const,
+        reminderDate: '',
+        reminderTime: '',
+        confirmPastDate: false,
+      }
+
   const form = useForm<ActivityFormData>({
     resolver: zodResolver(activityFormSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      category: undefined as unknown as ActivityCategory,
-      date: '',
-      hasTime: true,
-      time: '',
-      priority: 'medium' as ActivityPriority,
-      steps: [],
-      reminderOption: 'none' as const,
-      reminderDate: '',
-      reminderTime: '',
-      confirmPastDate: false,
-    },
+    defaultValues,
   })
 
   const {
@@ -44,7 +79,8 @@ export function useCreateActivity(onSuccess?: () => void) {
     setValue,
     watch,
     trigger,
-    formState: { errors },
+    reset,
+    formState: { errors, isDirty },
   } = form
 
   const stepsArray = useFieldArray({
@@ -57,6 +93,12 @@ export function useCreateActivity(onSuccess?: () => void) {
   const dateValue = watch('date') ?? ''
   const timeValue = watch('time') ?? ''
   const descriptionValue = watch('description') ?? ''
+
+  useEffect(() => {
+    if (mode === 'edit' && initialValues) {
+      reset(activityToFormValues(initialValues))
+    }
+  }, [mode, initialValues, reset])
 
   const addStep = useCallback(() => {
     const key = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`
@@ -119,7 +161,7 @@ export function useCreateActivity(onSuccess?: () => void) {
           }
         }
 
-        await activityUseCases.createActivity({
+        const activityData = {
           userId: user.uid,
           title: data.title,
           description: data.description || null,
@@ -135,15 +177,18 @@ export function useCreateActivity(onSuccess?: () => void) {
           reminder: {
             enabled: data.reminderOption !== 'none',
             remindAt: remindAt,
+            dismissedAt: null,
           },
-        })
+        }
+
+        if (mode === 'edit' && initialValues) {
+          await activityUseCases.updateActivity(initialValues.id, activityData)
+        } else {
+          await activityUseCases.createActivity(activityData)
+        }
 
         setIsSuccess(true)
-        if (onSuccess) {
-          onSuccess()
-        } else {
-          router.push('/atividades')
-        }
+        onSuccess?.()
       } catch (error) {
         const err = error as Error
         if (err.name === 'FirebaseError') {
@@ -153,16 +198,16 @@ export function useCreateActivity(onSuccess?: () => void) {
           } else if (code === 'unavailable' || code === 'network-error') {
             setApiError('Não foi possível salvar a atividade. Verifique sua conexão e tente novamente.')
           } else {
-            setApiError('Não foi possível criar a atividade agora. Tente novamente em alguns instantes.')
+            setApiError('Não foi possível salvar a atividade agora. Tente novamente em alguns instantes.')
           }
         } else {
-          setApiError(err.message || 'Não foi possível criar a atividade agora. Tente novamente em alguns instantes.')
+          setApiError(err.message || 'Não foi possível salvar a atividade agora. Tente novamente em alguns instantes.')
         }
       } finally {
         setIsSubmitting(false)
       }
     },
-    [user, router, onSuccess]
+    [user, mode, initialValues, onSuccess]
   )
 
   return {
@@ -173,6 +218,7 @@ export function useCreateActivity(onSuccess?: () => void) {
     apiError,
     isSubmitting,
     isSuccess,
+    isDirty,
     setApiError,
     setValue,
     watch,
