@@ -140,7 +140,11 @@ export function useOnboarding() {
     setSaveError('')
 
     try {
-      await onboardingUseCases.completeFirstAccess(user.uid, state.preferences)
+      await onboardingUseCases.completeFirstAccess(
+        user.uid,
+        state.preferences,
+        { name: user.displayName || '', email: user.email || '' },
+      )
       accessibility.setFontSize(
         state.preferences.fontSize === 'extraLarge' ? 'x-large' : state.preferences.fontSize
       )

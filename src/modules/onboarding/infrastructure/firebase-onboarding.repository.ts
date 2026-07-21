@@ -25,17 +25,23 @@ export function createFirebaseOnboardingRepository(): IOnboardingRepository {
     ])
   }
 
-  async function completeOnboarding(uid: string, preferences: OnboardingPreferences): Promise<void> {
+  async function completeOnboarding(uid: string, preferences: OnboardingPreferences, userData?: { name: string; email: string }): Promise<void> {
     const db = getDb()
     const userRef = doc(db, 'users', uid)
     const prefsRef = doc(db, 'userPreferences', uid)
 
+    const userUpdate: Record<string, unknown> = {
+      firstAccessCompleted: true,
+      onboardingStep: 6,
+      updatedAt: serverTimestamp(),
+    }
+    if (userData) {
+      userUpdate.name = userData.name
+      userUpdate.email = userData.email
+    }
+
     await Promise.all([
-      setDoc(userRef, {
-        firstAccessCompleted: true,
-        onboardingStep: 6,
-        updatedAt: serverTimestamp(),
-      }, { merge: true }),
+      setDoc(userRef, userUpdate, { merge: true }),
       setDoc(prefsRef, {
         ...preferences,
         updatedAt: serverTimestamp(),

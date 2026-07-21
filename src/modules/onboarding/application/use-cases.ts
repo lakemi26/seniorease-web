@@ -6,8 +6,8 @@ export function createOnboardingUseCases(repository: IOnboardingRepository) {
     return repository.saveProgress(uid, step, preferences)
   }
 
-  async function completeFirstAccess(uid: string, preferences: OnboardingPreferences) {
-    return repository.completeOnboarding(uid, preferences)
+  async function completeFirstAccess(uid: string, preferences: OnboardingPreferences, userData?: { name: string; email: string }) {
+    return repository.completeOnboarding(uid, preferences, userData)
   }
 
   return {
