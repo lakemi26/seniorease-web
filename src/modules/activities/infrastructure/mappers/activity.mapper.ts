@@ -1,6 +1,6 @@
 import { serverTimestamp, Timestamp } from 'firebase/firestore'
 import type { Activity, CreateActivityInput } from '../../domain/entities'
-import type { ActivityDocument, CreateActivityDocument, StepDocument } from './types'
+import type { ActivityDocument, CreateActivityDocument, UpdateActivityDocument, StepDocument } from './types'
 
 export function mapActivityDocument(doc: ActivityDocument): Activity {
   return {
@@ -23,6 +23,7 @@ export function mapActivityDocument(doc: ActivityDocument): Activity {
     reminder: {
       enabled: doc.reminder.enabled,
       remindAt: doc.reminder.remindAt instanceof Timestamp ? doc.reminder.remindAt.toDate() : null,
+      dismissedAt: doc.reminder.dismissedAt instanceof Timestamp ? doc.reminder.dismissedAt.toDate() : null,
     },
     startedAt: doc.startedAt instanceof Timestamp ? doc.startedAt.toDate() : null,
     completedAt: doc.completedAt instanceof Timestamp ? doc.completedAt.toDate() : null,
@@ -57,10 +58,41 @@ export function toFirestoreCreateDocument(input: CreateActivityInput): CreateAct
       remindAt: input.reminder.remindAt
         ? (input.reminder.remindAt as unknown as Timestamp)
         : null,
+      dismissedAt: null,
     },
     startedAt: null,
     completedAt: null,
     createdAt: serverTimestamp() as unknown,
+    updatedAt: serverTimestamp() as unknown,
+  }
+}
+
+export function toFirestoreUpdateDocument(input: Partial<CreateActivityInput>): UpdateActivityDocument {
+  return {
+    ...(input.title !== undefined && { title: input.title }),
+    ...(input.description !== undefined && { description: input.description ?? null }),
+    ...(input.category !== undefined && { category: input.category }),
+    ...(input.scheduledAt !== undefined && { scheduledAt: input.scheduledAt as unknown as Timestamp }),
+    ...(input.hasTime !== undefined && { hasTime: input.hasTime }),
+    ...(input.priority !== undefined && { priority: input.priority }),
+    ...(input.steps !== undefined && {
+      steps: input.steps.map((s, i) => ({
+        id: s.id,
+        title: s.title,
+        order: i + 1,
+        completed: false,
+        completedAt: null,
+      })),
+    }),
+    ...(input.reminder !== undefined && {
+      reminder: {
+        enabled: input.reminder.enabled,
+        remindAt: input.reminder.remindAt
+          ? (input.reminder.remindAt as unknown as Timestamp)
+          : null,
+        dismissedAt: null,
+      },
+    }),
     updatedAt: serverTimestamp() as unknown,
   }
 }
