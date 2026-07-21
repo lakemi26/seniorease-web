@@ -21,6 +21,7 @@ function renderWithAuth(overrides?: Partial<AuthContextType>) {
     isLoading: false,
     signOut: mockSignOut,
     refreshProfile: vi.fn(),
+    updateProfileState: vi.fn(),
   }
 
   return render(

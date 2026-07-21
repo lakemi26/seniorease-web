@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { User, Settings, LogOut, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/presentation/hooks/useAuth'
 
 export function ProfileMenu() {
   const { user, profile, signOut } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -85,6 +86,7 @@ export function ProfileMenu() {
           <button
             type="button"
             role="menuitem"
+            aria-current={pathname === '/perfil' ? 'page' : undefined}
             onClick={() => handleSelect(() => router.push('/perfil'))}
             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-text hover:bg-primary-light transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
           >

@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Home, ListTodo, Calendar, History, HelpCircle, Settings } from 'lucide-react'
+import { Home, ListTodo, Calendar, History, HelpCircle, Settings, User } from 'lucide-react'
 import { cn } from '@/shared/utils/cn'
 import { useAccessibility } from '@/presentation/hooks/useAccessibility'
 
@@ -15,6 +15,7 @@ interface NavItem {
 const baseNavItems: NavItem[] = [
   { href: '/dashboard', label: 'Início', icon: <Home className="w-5 h-5" aria-hidden="true" /> },
   { href: '/atividades', label: 'Atividades', icon: <ListTodo className="w-5 h-5" aria-hidden="true" /> },
+  { href: '/perfil', label: 'Perfil', icon: <User className="w-5 h-5" aria-hidden="true" /> },
   { href: '/ajuda', label: 'Ajuda', icon: <HelpCircle className="w-5 h-5" aria-hidden="true" /> },
 ]
 
@@ -23,6 +24,7 @@ const completeNavItems: NavItem[] = [
   { href: '/atividades', label: 'Atividades', icon: <ListTodo className="w-5 h-5" aria-hidden="true" /> },
   { href: '/calendario', label: 'Calendário', icon: <Calendar className="w-5 h-5" aria-hidden="true" /> },
   { href: '/historico', label: 'Histórico', icon: <History className="w-5 h-5" aria-hidden="true" /> },
+  { href: '/perfil', label: 'Perfil', icon: <User className="w-5 h-5" aria-hidden="true" /> },
   { href: '/ajuda', label: 'Ajuda', icon: <HelpCircle className="w-5 h-5" aria-hidden="true" /> },
   { href: '/configuracoes', label: 'Configurações', icon: <Settings className="w-5 h-5" aria-hidden="true" /> },
 ]
