@@ -2,11 +2,10 @@ export interface UserProfile {
   id: string
   name: string
   email: string
-  emailVerified: boolean
   firstAccessCompleted: boolean
   onboardingStep: number
-  createdAt: string
-  updatedAt: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface UserPreferences {

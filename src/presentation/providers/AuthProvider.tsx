@@ -31,6 +31,7 @@ export interface AuthContextType {
   isLoading: boolean
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
+  updateProfileState: (profile: UserProfile) => void
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -40,27 +41,22 @@ export const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   signOut: async () => {},
   refreshProfile: async () => {},
+  updateProfileState: () => {},
 })
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [isAuthInitialized, setIsAuthInitialized] = useState(false)
-  const isLoading = isFirebaseConfigured() ? !isAuthInitialized : false
+  const [isProfileLoaded, setIsProfileLoaded] = useState(false)
 
-  const loadProfile = useCallback(async (uid: string) => {
-    try {
-      const userProfile = await getAuthUseCases().getUserProfile(uid)
-      setProfile(userProfile)
-    } catch {
-      setProfile(null)
-    }
+  const isLoading = isFirebaseConfigured()
+    ? !isAuthInitialized || (!!user && !isProfileLoaded)
+    : false
+
+  const updateProfileState = useCallback((updatedProfile: UserProfile) => {
+    setProfile(updatedProfile)
   }, [])
-
-  const refreshProfile = useCallback(async () => {
-    if (!user) return
-    await loadProfile(user.uid)
-  }, [user, loadProfile])
 
   useEffect(() => {
     if (!isFirebaseConfigured()) {
@@ -69,12 +65,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const repository = createFirebaseAuthRepository()
 
-    const unsubscribe = repository.onAuthStateChanged(async (firebaseUser) => {
+    const unsubscribe = repository.onAuthStateChanged((firebaseUser) => {
       setUser(firebaseUser)
-      if (firebaseUser) {
-        await loadProfile(firebaseUser.uid)
-      } else {
+      if (!firebaseUser) {
         setProfile(null)
+        setIsProfileLoaded(false)
       }
       setIsAuthInitialized(true)
     })
@@ -82,7 +77,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       unsubscribe()
     }
-  }, [loadProfile])
+  }, [])
+
+  useEffect(() => {
+    if (!user) {
+      setProfile(null)
+      setIsProfileLoaded(false)
+      return
+    }
+
+    const repository = createFirebaseAuthRepository()
+    const useCases = createAuthUseCases(repository)
+
+    const unsub = useCases.subscribeToUserProfile(
+      user.uid,
+      (data) => {
+        setProfile(data)
+        setIsProfileLoaded(true)
+      },
+      () => {
+        setProfile(null)
+        setIsProfileLoaded(true)
+      },
+    )
+
+    return () => {
+      unsub()
+    }
+  }, [user])
+
+  const refreshProfile = useCallback(async () => {}, [])
 
   const signOut = useCallback(async () => {
     await getAuthUseCases().signOutUser()
@@ -98,8 +122,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       signOut,
       refreshProfile,
+      updateProfileState,
     }),
-    [user, profile, isLoading, signOut, refreshProfile]
+    [user, profile, isLoading, signOut, refreshProfile, updateProfileState]
   )
 
   return (

@@ -40,6 +40,25 @@ export function createAuthUseCases(repository: IAuthRepository) {
     return repository.getUserProfile(uid)
   }
 
+  function subscribeToUserProfile(
+    uid: string,
+    onData: (profile: UserProfile | null) => void,
+    onError: (error: Error) => void,
+  ): () => void {
+    return repository.subscribeToUserProfile(uid, onData, onError)
+  }
+
+  async function updateUserName(userId: string, name: string): Promise<void> {
+    const trimmed = name.trim().replace(/\s+/g, ' ')
+    if (trimmed.length < 2) {
+      throw new Error('Use pelo menos 2 caracteres.')
+    }
+    if (trimmed.length > 80) {
+      throw new Error('O nome deve ter no máximo 80 caracteres.')
+    }
+    await repository.updateUserName(userId, trimmed)
+  }
+
   async function createUserProfile(uid: string, data: { name: string; email: string }): Promise<void> {
     return repository.createUserProfile(uid, data)
   }
@@ -63,6 +82,8 @@ export function createAuthUseCases(repository: IAuthRepository) {
     sendPasswordReset,
     getAuthenticatedUser,
     getUserProfile,
+    subscribeToUserProfile,
+    updateUserName,
     createUserProfile,
     updateUserProfile,
     getUserPreferences,

@@ -16,11 +16,14 @@ import {
   setDoc,
   updateDoc,
   serverTimestamp,
+  onSnapshot,
+  Timestamp,
 } from 'firebase/firestore'
 import { getFirebaseAuth } from '@/infrastructure/firebase/firebase.auth'
 import { getFirebaseFirestore } from '@/infrastructure/firebase/firebase.firestore'
 import type { IAuthRepository } from '../domain/repositories'
 import type { UserProfile, UserPreferences } from '../domain/entities'
+import { mapUserProfile } from '../domain/mappers'
 
 export function createFirebaseAuthRepository(): IAuthRepository {
   function getAuth() {
@@ -69,7 +72,39 @@ export function createFirebaseAuthRepository(): IAuthRepository {
     const docRef = doc(db, 'users', uid)
     const snapshot = await getDoc(docRef)
     if (!snapshot.exists()) return null
-    return snapshot.data() as UserProfile
+    return mapUserProfile(snapshot.id, snapshot.data() as Record<string, unknown>)
+  }
+
+  function subscribeToUserProfile(
+    uid: string,
+    onData: (profile: UserProfile | null) => void,
+    onError: (error: Error) => void,
+  ): () => void {
+    const db = getDb()
+    const docRef = doc(db, 'users', uid)
+    return onSnapshot(
+      docRef,
+      (snapshot) => {
+        if (!snapshot.exists()) {
+          onData(null)
+          return
+        }
+        const profile = mapUserProfile(snapshot.id, snapshot.data() as Record<string, unknown>)
+        onData(profile)
+      },
+      (error) => {
+        onError(error)
+      },
+    )
+  }
+
+  async function updateUserName(uid: string, name: string): Promise<void> {
+    const db = getDb()
+    const docRef = doc(db, 'users', uid)
+    await updateDoc(docRef, {
+      name,
+      updatedAt: serverTimestamp(),
+    })
   }
 
   async function createUserProfile(
@@ -81,7 +116,6 @@ export function createFirebaseAuthRepository(): IAuthRepository {
     const profile: Record<string, unknown> = {
       name: data.name,
       email: data.email,
-      emailVerified: false,
       firstAccessCompleted: false,
       onboardingStep: 1,
       createdAt: serverTimestamp(),
@@ -125,8 +159,10 @@ export function createFirebaseAuthRepository(): IAuthRepository {
     getCurrentUser,
     onAuthStateChanged: onAuthStateChangedHandler,
     getUserProfile,
+    subscribeToUserProfile,
     createUserProfile,
     updateUserProfile,
+    updateUserName,
     getUserPreferences,
     saveUserPreferences,
   }
