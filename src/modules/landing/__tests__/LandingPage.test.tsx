@@ -5,7 +5,6 @@ import { Hero } from '@/modules/landing/components/Hero'
 import { Accordion } from '@/presentation/components/ui/Accordion'
 import { Footer } from '@/presentation/components/layout/Footer'
 import { Navbar } from '@/presentation/components/layout/Navbar'
-import { SkipLink } from '@/presentation/components/accessibility/SkipLink'
 import { AccessibilityProvider } from '@/presentation/providers/AccessibilityProvider'
 
 vi.mock('next/navigation', () => ({
@@ -187,11 +186,3 @@ describe('Footer', () => {
   })
 })
 
-describe('SkipLink', () => {
-  it('possui link para pular ao conteúdo principal', () => {
-    render(<SkipLink />)
-    const link = screen.getByText('Pular para o conteúdo principal')
-    expect(link).toBeInTheDocument()
-    expect(link).toHaveAttribute('href', '#main-content')
-  })
-})

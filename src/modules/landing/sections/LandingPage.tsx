@@ -1,4 +1,3 @@
-import { SkipLink } from '@/presentation/components/accessibility/SkipLink'
 import { Navbar } from '@/presentation/components/layout/Navbar'
 import { Hero } from '@/modules/landing/components/Hero'
 import { BenefitsSection } from '@/modules/landing/components/BenefitsSection'
@@ -13,7 +12,6 @@ import { Footer } from '@/presentation/components/layout/Footer'
 export function LandingPage() {
   return (
     <>
-      <SkipLink />
       <Navbar />
       <main id="main-content">
         <Hero />
