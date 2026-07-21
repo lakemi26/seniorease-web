@@ -1,4 +1,4 @@
-import type { Activity, CreateActivityInput, WeeklySummary } from './entities'
+import type { Activity, ActivityCategory, CreateActivityInput, WeeklySummary, ActivityHistoryFilters } from './entities'
 
 export type Unsubscribe = () => void
 
@@ -9,8 +9,20 @@ export interface ActivityFilters {
   search?: string
 }
 
+export { type ActivityHistoryFilters }
+
 export interface IActivityRepository {
   create(input: CreateActivityInput): Promise<Activity>
+
+  getById(id: string): Promise<Activity>
+  update(id: string, input: Partial<CreateActivityInput>): Promise<Activity>
+  delete(id: string): Promise<void>
+
+  startActivity(activityId: string, userId: string): Promise<Activity>
+  completeStep(activityId: string, stepId: string, userId: string): Promise<Activity>
+  reopenStep(activityId: string, stepId: string, userId: string): Promise<Activity>
+  completeActivity(activityId: string, userId: string): Promise<Activity>
+  reopenActivity(activityId: string, userId: string): Promise<Activity>
 
   subscribeByUser(
     uid: string,
@@ -26,6 +38,30 @@ export interface IActivityRepository {
   subscribeToInProgressActivities(uid: string, onData: (activities: Activity[]) => void, onError?: (error: Error) => void): Unsubscribe
 
   subscribeToRecentCompletedActivities(uid: string, onData: (activities: Activity[]) => void, onError?: (error: Error) => void): Unsubscribe
+
+  subscribeToDueReminders(
+    userId: string,
+    referenceDate: Date,
+    onData: (activities: Activity[]) => void,
+    onError?: (error: Error) => void
+  ): Unsubscribe
+
+  dismissReminder(activityId: string, userId: string): Promise<Activity>
+
+  subscribeToCompletedActivities(
+    userId: string,
+    filters: ActivityHistoryFilters,
+    onData: (activities: Activity[]) => void,
+    onError?: (error: Error) => void
+  ): Unsubscribe
+
+  subscribeToActivitiesByPeriod(
+    userId: string,
+    startDate: Date,
+    endDate: Date,
+    onData: (activities: Activity[]) => void,
+    onError?: (error: Error) => void
+  ): Unsubscribe
 
   getWeeklySummary(uid: string): Promise<WeeklySummary>
 }

@@ -12,6 +12,7 @@ export interface StepDocument {
 export interface ReminderDocument {
   enabled: boolean
   remindAt: Timestamp | null
+  dismissedAt: Timestamp | null
 }
 
 export interface ActivityDocument {
@@ -48,9 +49,38 @@ export interface CreateActivityDocument {
     completed: false
     completedAt: null
   }>
-  reminder: { enabled: boolean; remindAt: Timestamp | null }
+  reminder: { enabled: boolean; remindAt: Timestamp | null; dismissedAt: null }
   startedAt: null
   completedAt: null
   createdAt: unknown
+  updatedAt: unknown
+}
+
+export interface StepUpdateDocument {
+  id: string
+  title: string
+  order: number
+  completed: boolean
+  completedAt: Timestamp | null
+}
+
+export interface UpdateActivityDocument {
+  title?: string
+  description?: string | null
+  category?: ActivityCategory
+  scheduledAt?: Timestamp
+  hasTime?: boolean
+  status?: ActivityStatus
+  priority?: ActivityPriority
+  steps?: Array<{
+    id: string
+    title: string
+    order: number
+    completed: boolean
+    completedAt: Timestamp | null
+  }>
+  reminder?: { enabled: boolean; remindAt: Timestamp | null; dismissedAt?: Timestamp | null }
+  startedAt?: Timestamp | null
+  completedAt?: Timestamp | null
   updatedAt: unknown
 }

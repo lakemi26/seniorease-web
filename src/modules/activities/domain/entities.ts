@@ -15,6 +15,7 @@ export interface ActivityStep {
 export interface ActivityReminder {
   enabled: boolean
   remindAt: Date | null
+  dismissedAt: Date | null
 }
 
 export interface Activity {
@@ -56,6 +57,14 @@ export interface WeeklySummary {
   completed: number
   pending: number
   inProgress: number
+}
+
+export interface ActivityHistoryFilters {
+  period: 'all' | 'week' | 'month' | 'custom'
+  category: ActivityCategory | 'all'
+  search?: string
+  startDate?: Date
+  endDate?: Date
 }
 
 export const CATEGORY_LABELS: Record<ActivityCategory, string> = {
