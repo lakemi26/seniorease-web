@@ -1,6 +1,8 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { DashboardPagesLayout } from '../dashboard-pages-layout'
-import { ComingSoonContent } from '@/presentation/components/ui/ComingSoonContent'
+import { ActivityHistorySkeleton } from '@/modules/activities/presentation/components/history/ActivityHistorySkeleton'
+import { HistoryPage } from './HistoryPage'
 
 export const metadata: Metadata = {
   title: 'Histórico | SeniorEase',
@@ -10,16 +12,15 @@ export const metadata: Metadata = {
 export default function HistoricoPage() {
   return (
     <DashboardPagesLayout>
-      <ComingSoonContent
-        icon={
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" className="text-primary" />
-            <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary" />
-          </svg>
-        }
-        title="Histórico"
-        description="Esta funcionalidade está sendo preparada e será disponibilizada na próxima etapa do projeto."
-      />
+      <div className="flex flex-col gap-2 mb-8">
+        <h1 className="text-2xl font-bold text-text">Histórico de atividades</h1>
+        <p className="text-sm text-text-muted">
+          Consulte as atividades que você já concluiu.
+        </p>
+      </div>
+      <Suspense fallback={<ActivityHistorySkeleton />}>
+        <HistoryPage />
+      </Suspense>
     </DashboardPagesLayout>
   )
 }

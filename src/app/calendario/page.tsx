@@ -1,6 +1,8 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { DashboardPagesLayout } from '../dashboard-pages-layout'
-import { ComingSoonContent } from '@/presentation/components/ui/ComingSoonContent'
+import { CalendarSkeleton } from '@/modules/activities/presentation/components/calendar/CalendarSkeleton'
+import { CalendarPage } from './CalendarPage'
 
 export const metadata: Metadata = {
   title: 'Calendário | SeniorEase',
@@ -10,16 +12,15 @@ export const metadata: Metadata = {
 export default function CalendarioPage() {
   return (
     <DashboardPagesLayout>
-      <ComingSoonContent
-        icon={
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" className="text-primary" />
-            <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-primary" />
-          </svg>
-        }
-        title="Calendário"
-        description="Esta funcionalidade está sendo preparada e será disponibilizada na próxima etapa do projeto."
-      />
+      <div className="flex flex-col gap-2 mb-8">
+        <h1 className="text-2xl font-bold text-text">Calendário de atividades</h1>
+        <p className="text-sm text-text-muted">
+          Veja suas atividades organizadas por data.
+        </p>
+      </div>
+      <Suspense fallback={<CalendarSkeleton />}>
+        <CalendarPage />
+      </Suspense>
     </DashboardPagesLayout>
   )
 }
