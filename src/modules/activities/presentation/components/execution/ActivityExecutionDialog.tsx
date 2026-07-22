@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { HelpCircle, Lightbulb } from 'lucide-react'
 import { Modal } from '@/presentation/components/ui/Modal'
+import { Button } from '@/presentation/components/ui/Button'
 import { LiveRegion } from '@/presentation/components/accessibility/LiveRegion'
 import { AccessibleAlert } from '@/presentation/components/feedback/AccessibleAlert'
 import { ActivityProgress } from '../ActivityProgress'
@@ -53,11 +55,13 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
 
   const [view, setView] = useState<ExecutionView>('introduction')
   const [reopenStepId, setReopenStepId] = useState<string | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
 
   useEffect(() => {
     if (!isOpen) {
       setView('introduction')
       setReopenStepId(null)
+      setShowHelp(false)
     }
   }, [isOpen])
 
@@ -133,6 +137,12 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
     onClose()
   }, [saving, clearError, onClose])
 
+  const handleOpenFullHelp = useCallback(() => {
+    if (activity) {
+      window.open(`/ajuda?artigo=executar-atividade&origem=execucao`, '_blank')
+    }
+  }, [activity])
+
   if (!isOpen) return null
 
   const renderContent = () => {
@@ -150,6 +160,33 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
 
     if (activity.status === 'cancelled') {
       return <ActivityExecutionErrorState message="Esta atividade foi cancelada." onClose={handleClose} />
+    }
+
+    if (showHelp) {
+      return (
+        <div className="flex flex-col gap-4">
+          <div
+            role="complementary"
+            aria-label="Ajuda contextual"
+            className="flex items-start gap-3 p-4 rounded-md bg-accent-light border border-accent/20"
+          >
+            <Lightbulb className="w-5 h-5 text-accent shrink-0 mt-0.5" aria-hidden="true" />
+            <div>
+              <p className="text-sm text-text-secondary mb-3">
+                Leia a instrução com calma. Seu progresso está salvo e você poderá continuar depois.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button variant="primary" size="normal" onClick={() => setShowHelp(false)}>
+                  Voltar à etapa
+                </Button>
+                <Button variant="outline" size="normal" onClick={handleOpenFullHelp}>
+                  Ver mais orientações
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
     }
 
     if (view === 'introduction' && activity.status === 'pending') {
@@ -246,6 +283,18 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
             onComplete={handleCompleteStep}
             saving={saving}
           />
+
+          <div className="flex justify-start">
+            <Button
+              variant="ghost"
+              size="normal"
+              onClick={() => setShowHelp(true)}
+              icon={<HelpCircle className="w-4 h-4" aria-hidden="true" />}
+              aria-label="Preciso de ajuda com esta etapa"
+            >
+              Preciso de ajuda
+            </Button>
+          </div>
 
           {totalSteps > 1 && (
             <details className="mt-2">

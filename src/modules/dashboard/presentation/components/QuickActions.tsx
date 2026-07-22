@@ -15,7 +15,7 @@ interface ActionItem {
 const baseActions: ActionItem[] = [
   { icon: <Plus className="w-6 h-6" aria-hidden="true" />, title: 'Nova atividade', description: 'Criar uma nova atividade', href: '/atividades?modal=nova' },
   { icon: <ListTodo className="w-6 h-6" aria-hidden="true" />, title: 'Minhas atividades', description: 'Ver todas as atividades', href: '/atividades' },
-  { icon: <HelpCircle className="w-6 h-6" aria-hidden="true" />, title: 'Abrir ajuda', description: 'Tirar dúvidas', href: '/ajuda' },
+  { icon: <HelpCircle className="w-6 h-6" aria-hidden="true" />, title: 'Abrir ajuda', description: 'Tirar dúvidas', href: '/ajuda?origem=dashboard' },
 ]
 
 const completeActions: ActionItem[] = [

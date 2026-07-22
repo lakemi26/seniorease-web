@@ -1,26 +1,36 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { DashboardPagesLayout } from '../dashboard-pages-layout'
-import { ComingSoonContent } from '@/presentation/components/ui/ComingSoonContent'
+import { HelpPageClient } from './help-page-client'
 
 export const metadata: Metadata = {
   title: 'Ajuda | SeniorEase',
-  description: 'Central de ajuda do SeniorEase.',
+  description: 'Orientações para utilizar os recursos do SeniorEase.',
+}
+
+function HelpPageFallback() {
+  return (
+    <div className="flex flex-col gap-8 max-w-4xl mx-auto pb-8" aria-busy="true">
+      <div className="space-y-2">
+        <div className="h-8 w-64 bg-border rounded-md animate-pulse" />
+        <div className="h-5 w-96 bg-border rounded-md animate-pulse" />
+      </div>
+      <div className="h-14 bg-border rounded-xl animate-pulse" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-24 bg-border rounded-lg animate-pulse" />
+        ))}
+      </div>
+    </div>
+  )
 }
 
 export default function AjudaPage() {
   return (
     <DashboardPagesLayout>
-      <ComingSoonContent
-        icon={
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" className="text-primary" />
-            <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary" />
-            <path d="M12 17h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-primary" />
-          </svg>
-        }
-        title="Ajuda"
-        description="Esta funcionalidade está sendo preparada e será disponibilizada na próxima etapa do projeto."
-      />
+      <Suspense fallback={<HelpPageFallback />}>
+        <HelpPageClient />
+      </Suspense>
     </DashboardPagesLayout>
   )
 }

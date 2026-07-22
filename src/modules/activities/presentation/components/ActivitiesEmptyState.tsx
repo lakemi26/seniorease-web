@@ -21,6 +21,11 @@ export function ActivitiesEmptyState({ variant = 'empty' }: ActivitiesEmptyState
         <p className="text-sm text-text-muted mb-6 max-w-sm">
           Altere os filtros ou faça uma nova busca.
         </p>
+        <Link href="/ajuda?artigo=criar-atividade&origem=atividades">
+          <Button variant="ghost" size="normal">
+            Como criar uma atividade
+          </Button>
+        </Link>
       </div>
     )
   }
@@ -37,11 +42,18 @@ export function ActivitiesEmptyState({ variant = 'empty' }: ActivitiesEmptyState
       <p className="text-sm text-text-muted mb-6 max-w-sm">
         Adicione sua primeira atividade para começar a organizar sua rotina.
       </p>
-      <Link href="/atividades?modal=nova">
-        <Button variant="primary" size="large">
-          Criar primeira atividade
-        </Button>
-      </Link>
+      <div className="flex flex-col sm:flex-row items-center gap-3">
+        <Link href="/atividades?modal=nova">
+          <Button variant="primary" size="large">
+            Criar primeira atividade
+          </Button>
+        </Link>
+        <Link href="/ajuda?artigo=criar-atividade&origem=atividades">
+          <Button variant="ghost" size="normal">
+            Como criar uma atividade
+          </Button>
+        </Link>
+      </div>
     </div>
   )
 }

@@ -28,7 +28,7 @@ export function HelpCard({ hasActivities = false }: HelpCardProps) {
                 ? 'Veja orientações para criar, acompanhar ou concluir uma atividade.'
                 : 'Comece adicionando sua primeira atividade. O SeniorEase vai orientar você em cada etapa.'}
             </p>
-            <Button variant="primary" size="normal" onClick={() => router.push('/ajuda')}>
+            <Button variant="primary" size="normal" onClick={() => router.push('/ajuda?origem=dashboard')}>
               Abrir ajuda
             </Button>
           </div>

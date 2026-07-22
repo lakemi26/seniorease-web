@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { User, Settings, LogOut, ChevronDown } from 'lucide-react'
+import { User, Settings, LogOut, ChevronDown, HelpCircle } from 'lucide-react'
 import { useAuth } from '@/presentation/hooks/useAuth'
 
 export function ProfileMenu() {
@@ -102,6 +102,17 @@ export function ProfileMenu() {
           >
             <Settings className="w-4 h-4 text-text-muted" aria-hidden="true" />
             Configurações
+          </button>
+
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => handleSelect(() => router.push('/ajuda?origem=dashboard'))}
+            aria-current={pathname === '/ajuda' ? 'page' : undefined}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-text hover:bg-primary-light transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          >
+            <HelpCircle className="w-4 h-4 text-text-muted" aria-hidden="true" />
+            Ajuda
           </button>
 
           <div className="border-t border-border mt-1 pt-1">

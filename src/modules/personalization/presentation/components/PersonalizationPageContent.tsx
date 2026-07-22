@@ -15,6 +15,8 @@ import { PreferencesActions } from './PreferencesActions'
 import { ResetPreferencesConfirmation } from './ResetPreferencesConfirmation'
 import { AccessibleAlert } from '@/presentation/components/feedback/AccessibleAlert'
 import { LiveRegion } from '@/presentation/components/accessibility/LiveRegion'
+import Link from 'next/link'
+import { HelpCircle } from 'lucide-react'
 import { Modal } from '@/presentation/components/ui/Modal'
 import { Button } from '@/presentation/components/ui/Button'
 
@@ -161,6 +163,16 @@ export function PersonalizationPageContent() {
                 remindersEnabled={draft.remindersEnabled}
                 onChange={(v) => updateDraft({ remindersEnabled: v })}
               />
+            </div>
+
+            <div className="flex justify-start">
+              <Link
+                href="/ajuda?artigo=aumentar-texto&origem=personalizacao"
+                className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus rounded-md transition-colors"
+              >
+                <HelpCircle className="w-4 h-4" aria-hidden="true" />
+                Precisa de ajuda com a personalização?
+              </Link>
             </div>
 
             <PreferencesActions

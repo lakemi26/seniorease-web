@@ -12,6 +12,7 @@ import { PersonalInformationSection } from '@/modules/authentication/presentatio
 import { AccountSecuritySection } from '@/modules/authentication/presentation/components/AccountSecuritySection'
 import { PersonalizationShortcut } from '@/modules/authentication/presentation/components/PersonalizationShortcut'
 import { SessionSection } from '@/modules/authentication/presentation/components/SessionSection'
+import Link from 'next/link'
 import { LiveRegion } from '@/presentation/components/accessibility/LiveRegion'
 import { Container } from '@/presentation/components/layout/Container'
 import { Card } from '@/presentation/components/ui/Card'
@@ -137,6 +138,15 @@ export function ProfilePageContent() {
         />
 
         <PersonalizationShortcut />
+
+        <div className="flex justify-start">
+          <Link
+            href="/ajuda?artigo=entrar-conta&origem=perfil"
+            className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus rounded-md transition-colors"
+          >
+            Precisa de ajuda com sua conta?
+          </Link>
+        </div>
 
         <SessionSection
           showSignOutConfirm={showSignOutConfirm}
