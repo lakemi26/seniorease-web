@@ -16,13 +16,13 @@ import { HelpContextReturn } from '@/modules/help/presentation/components/HelpCo
 import { HelpNoResults } from '@/modules/help/presentation/components/HelpNoResults'
 import { HelpArticleNotFound } from '@/modules/help/presentation/components/HelpArticleNotFound'
 import { HelpRecommendedContent } from '@/modules/help/presentation/components/HelpRecommendedContent'
+import { HelpCategoryArticleList } from '@/modules/help/presentation/components/HelpCategoryArticleList'
 import {
   categories,
   articles,
   faqItems,
   quickLinks,
   getArticleBySlug,
-  getArticlesByCategory,
   getBasicModeCategories,
   getRecommendedArticles,
   searchArticles,
@@ -117,7 +117,13 @@ export function HelpPageClient() {
 
   const isBasic = interfaceMode === 'basic'
 
-  const searchResults = busca ? searchArticles(busca) : []
+  const articlesInCurrentMode = isBasic
+    ? articles.filter((a) => a.availableInBasicMode)
+    : articles
+
+  const searchResults = busca
+    ? searchArticles(busca).filter((a) => !isBasic || a.availableInBasicMode)
+    : []
 
   const filteredCategories = validCategoria
     ? categories.filter((c) => c.id === validCategoria)
@@ -126,10 +132,10 @@ export function HelpPageClient() {
       : categories
 
   const categoryArticleCount = (categoryId: string) =>
-    articles.filter((a) => a.categoryId === categoryId).length
+    articlesInCurrentMode.filter((a) => a.categoryId === categoryId).length
 
   const currentCategoryArticles = validCategoria
-    ? getArticlesByCategory(validCategoria)
+    ? articlesInCurrentMode.filter((a) => a.categoryId === validCategoria)
     : []
 
   const recommendedArticles = getRecommendedArticles(false, interfaceMode)
@@ -202,7 +208,12 @@ export function HelpPageClient() {
                   )}
                   onCategoryClick={handleCategoryClick}
                 />
-                {currentCategoryArticles.length === 0 && (
+                {currentCategoryArticles.length > 0 ? (
+                  <HelpCategoryArticleList
+                    articles={currentCategoryArticles}
+                    onSelectArticle={handleSelectArticle}
+                  />
+                ) : (
                   <div className="flex flex-col items-center text-center py-8 px-4">
                     <p className="text-base font-semibold text-text">Nenhuma orientação disponível nesta categoria.</p>
                     <p className="text-sm text-text-muted mt-1">Consulte outra categoria ou utilize a busca.</p>
