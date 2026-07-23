@@ -12,6 +12,47 @@ import type { ActivityCategory, ActivityPriority, Activity } from '../../domain/
 const repository = createFirebaseActivityRepository()
 const activityUseCases = createActivityUseCases(repository)
 
+const REMINDER_OFFSET_MAP: Record<number, 'atTime' | '15min' | '30min' | '1hour' | '1day'> = {
+  0: 'atTime',
+  15: '15min',
+  30: '30min',
+  60: '1hour',
+  1440: '1day',
+}
+
+function getReminderFormValues(activity: Activity): {
+  reminderOption: 'none' | 'atTime' | '15min' | '30min' | '1hour' | '1day' | 'custom'
+  reminderDate: string
+  reminderTime: string
+} {
+  if (!activity.reminder.enabled || !activity.reminder.remindAt) {
+    return { reminderOption: 'none', reminderDate: '', reminderTime: '' }
+  }
+
+  const diffMin = Math.round(
+    (activity.scheduledAt.getTime() - activity.reminder.remindAt.getTime()) / 60000,
+  )
+
+  if (diffMin >= 0) {
+    const matched = REMINDER_OFFSET_MAP[diffMin]
+    if (matched) {
+      return { reminderOption: matched, reminderDate: '', reminderTime: '' }
+    }
+  }
+
+  const year = activity.reminder.remindAt.getFullYear()
+  const month = String(activity.reminder.remindAt.getMonth() + 1).padStart(2, '0')
+  const day = String(activity.reminder.remindAt.getDate()).padStart(2, '0')
+  const hours = String(activity.reminder.remindAt.getHours()).padStart(2, '0')
+  const minutes = String(activity.reminder.remindAt.getMinutes()).padStart(2, '0')
+
+  return {
+    reminderOption: 'custom',
+    reminderDate: `${year}-${month}-${day}`,
+    reminderTime: `${hours}:${minutes}`,
+  }
+}
+
 function activityToFormValues(activity: Activity): ActivityFormData {
   const year = activity.scheduledAt.getFullYear()
   const month = String(activity.scheduledAt.getMonth() + 1).padStart(2, '0')
@@ -31,9 +72,7 @@ function activityToFormValues(activity: Activity): ActivityFormData {
       _key: s.id,
       title: s.title,
     })),
-    reminderOption: 'none' as const,
-    reminderDate: '',
-    reminderTime: '',
+    ...getReminderFormValues(activity),
     confirmPastDate: false,
   }
 }

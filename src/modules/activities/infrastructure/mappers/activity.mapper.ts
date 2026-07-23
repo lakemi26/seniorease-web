@@ -90,7 +90,6 @@ export function toFirestoreUpdateDocument(input: Partial<CreateActivityInput>): 
         remindAt: input.reminder.remindAt
           ? (input.reminder.remindAt as unknown as Timestamp)
           : null,
-        dismissedAt: null,
       },
     }),
     updatedAt: serverTimestamp() as unknown,

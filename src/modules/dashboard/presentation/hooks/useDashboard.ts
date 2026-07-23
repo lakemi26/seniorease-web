@@ -35,7 +35,7 @@ export function useDashboard() {
   const [remindersLoading, setRemindersLoading] = useState(true)
   const [remindersError, setRemindersError] = useState<string | null>(null)
   const [dismissingId, setDismissingId] = useState<string | null>(null)
-  const [remindersEnabled, setRemindersEnabled] = useState(true)
+  const [remindersEnabled, setRemindersEnabled] = useState<boolean | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
   const [isInitialized, setIsInitialized] = useState(false)
@@ -99,6 +99,7 @@ export function useDashboard() {
     unsubscribersRef.current.push(unsubRecent)
 
     if (remindersEnabled) {
+      setRemindersLoading(true)
       const next24h = new Date(Date.now() + 24 * 60 * 60 * 1000)
       const unsubReminders = activityUseCases.subscribeToDueReminders(
         uid,
