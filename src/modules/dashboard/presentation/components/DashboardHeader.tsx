@@ -2,6 +2,7 @@
 
 import { Bell, SlidersHorizontal } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Logo } from '@/presentation/components/layout/Logo'
 import { IconButton } from '@/presentation/components/ui/IconButton'
 import { ProfileMenu } from './ProfileMenu'
@@ -23,6 +24,7 @@ function formatDate(): string {
 }
 
 export function DashboardHeader() {
+  const router = useRouter()
   const { interface: interfaceMode } = useAccessibility()
 
   return (
@@ -55,6 +57,7 @@ export function DashboardHeader() {
             ariaLabel="Ajustar visual"
             size="normal"
             className="text-text-muted hover:text-text hover:bg-primary-light"
+            onClick={() => router.push('/configuracoes')}
           />
 
           <ProfileMenu />
