@@ -32,6 +32,9 @@ export interface UseProfileReturn {
   isResetting: boolean
   showResetConfirm: boolean
   showSignOutConfirm: boolean
+  showDeleteConfirm: boolean
+  isDeleting: boolean
+  deleteError: string | null
   nameError: string | null
   profileError: string | null
   resetError: string | null
@@ -48,6 +51,9 @@ export interface UseProfileReturn {
   openSignOutConfirm: () => void
   closeSignOutConfirm: () => void
   confirmSignOut: () => Promise<void>
+  openDeleteConfirm: () => void
+  closeDeleteConfirm: () => void
+  confirmDelete: () => Promise<void>
   hasUnsavedChanges: boolean
   register: ReturnType<typeof useForm<ProfileFormData>>['register']
   onFormSubmit: React.FormEventHandler<HTMLFormElement>
@@ -65,6 +71,9 @@ export function useProfile(): UseProfileReturn {
   const [isResetting, setIsResetting] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const [profileError, setProfileError] = useState<string | null>(null)
   const [resetError, setResetError] = useState<string | null>(null)
   const [resetSuccess, setResetSuccess] = useState<string | null>(null)
@@ -239,6 +248,36 @@ export function useProfile(): UseProfileReturn {
     }
   }, [authSignOut, router])
 
+  const openDeleteConfirm = useCallback(() => {
+    setDeleteError(null)
+    setShowDeleteConfirm(true)
+  }, [])
+
+  const closeDeleteConfirm = useCallback(() => {
+    setShowDeleteConfirm(false)
+    setDeleteError(null)
+  }, [])
+
+  const confirmDelete = useCallback(async () => {
+    if (!user) return
+    setIsDeleting(true)
+    setDeleteError(null)
+
+    try {
+      await authUseCases.deleteUserAccount(user.uid)
+      router.replace('/login')
+    } catch (error) {
+      const message = translateAuthError(error)
+      if (message.toLowerCase().includes('faça login novamente')) {
+        setDeleteError('Por segurança, faça login novamente antes de excluir sua conta.')
+      } else {
+        setDeleteError('Não foi possível excluir sua conta. Tente novamente em alguns instantes.')
+      }
+    } finally {
+      setIsDeleting(false)
+    }
+  }, [user, router])
+
   return {
     profile: localProfile,
     pageState,
@@ -263,6 +302,12 @@ export function useProfile(): UseProfileReturn {
     openSignOutConfirm,
     closeSignOutConfirm,
     confirmSignOut,
+    openDeleteConfirm,
+    closeDeleteConfirm,
+    confirmDelete,
+    showDeleteConfirm,
+    isDeleting,
+    deleteError,
     hasUnsavedChanges,
     register,
     onFormSubmit: formHandleSubmit(onNameSubmit),

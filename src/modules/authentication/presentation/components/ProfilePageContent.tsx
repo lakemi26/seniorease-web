@@ -12,6 +12,7 @@ import { PersonalInformationSection } from '@/modules/authentication/presentatio
 import { AccountSecuritySection } from '@/modules/authentication/presentation/components/AccountSecuritySection'
 import { PersonalizationShortcut } from '@/modules/authentication/presentation/components/PersonalizationShortcut'
 import { SessionSection } from '@/modules/authentication/presentation/components/SessionSection'
+import { DeleteAccountSection } from '@/modules/authentication/presentation/components/DeleteAccountSection'
 import Link from 'next/link'
 import { LiveRegion } from '@/presentation/components/accessibility/LiveRegion'
 import { Container } from '@/presentation/components/layout/Container'
@@ -51,6 +52,9 @@ export function ProfilePageContent() {
     isResetting,
     showResetConfirm,
     showSignOutConfirm,
+    showDeleteConfirm,
+    isDeleting,
+    deleteError,
     nameError,
     resetError,
     nameSuccess,
@@ -65,6 +69,9 @@ export function ProfilePageContent() {
     openSignOutConfirm,
     closeSignOutConfirm,
     confirmSignOut,
+    openDeleteConfirm,
+    closeDeleteConfirm,
+    confirmDelete,
     hasUnsavedChanges,
     register,
     onFormSubmit,
@@ -138,6 +145,15 @@ export function ProfilePageContent() {
         />
 
         <PersonalizationShortcut />
+
+        <DeleteAccountSection
+          showDeleteConfirm={showDeleteConfirm}
+          isDeleting={isDeleting}
+          deleteError={deleteError}
+          onOpenDelete={openDeleteConfirm}
+          onCloseDelete={closeDeleteConfirm}
+          onConfirmDelete={confirmDelete}
+        />
 
         <div className="flex justify-start">
           <Link

@@ -87,6 +87,10 @@ export function createAuthUseCases(repository: IAuthRepository) {
     return repository.resetUserPreferences(uid)
   }
 
+  async function deleteUserAccount(uid: string): Promise<void> {
+    return repository.deleteUserAccount(uid)
+  }
+
   return {
     signInUser,
     signUpUser,
@@ -102,5 +106,6 @@ export function createAuthUseCases(repository: IAuthRepository) {
     saveUserPreferences,
     subscribeToUserPreferences,
     resetUserPreferences,
+    deleteUserAccount,
   }
 }

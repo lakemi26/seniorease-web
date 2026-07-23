@@ -8,6 +8,7 @@ import {
   setPersistence,
   browserLocalPersistence,
   browserSessionPersistence,
+  deleteUser,
   type User,
 } from 'firebase/auth'
 import {
@@ -18,6 +19,11 @@ import {
   serverTimestamp,
   onSnapshot,
   Timestamp,
+  collection,
+  query,
+  where,
+  getDocs,
+  writeBatch,
 } from 'firebase/firestore'
 import { getFirebaseAuth } from '@/infrastructure/firebase/firebase.auth'
 import { getFirebaseFirestore } from '@/infrastructure/firebase/firebase.firestore'
@@ -183,6 +189,33 @@ export function createFirebaseAuthRepository(): IAuthRepository {
     }, { merge: true })
   }
 
+  async function deleteUserAccount(uid: string): Promise<void> {
+    const db = getDb()
+    const auth = getAuth()
+
+    const batch = writeBatch(db)
+
+    const activitiesRef = collection(db, 'activities')
+    const activitiesQuery = query(activitiesRef, where('userId', '==', uid))
+    const activitiesSnapshot = await getDocs(activitiesQuery)
+    activitiesSnapshot.docs.forEach((activityDoc) => {
+      batch.delete(activityDoc.ref)
+    })
+
+    const prefsRef = doc(db, 'userPreferences', uid)
+    batch.delete(prefsRef)
+
+    const userRef = doc(db, 'users', uid)
+    batch.delete(userRef)
+
+    await batch.commit()
+
+    const currentUser = auth.currentUser
+    if (currentUser) {
+      await deleteUser(currentUser)
+    }
+  }
+
   return {
     signIn,
     signUp,
@@ -200,5 +233,6 @@ export function createFirebaseAuthRepository(): IAuthRepository {
     saveUserPreferences,
     subscribeToUserPreferences,
     resetUserPreferences,
+    deleteUserAccount,
   }
 }

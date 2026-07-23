@@ -30,4 +30,5 @@ export interface IAuthRepository {
   ): () => void
 
   resetUserPreferences(uid: string): Promise<void>
+  deleteUserAccount(uid: string): Promise<void>
 }
