@@ -36,7 +36,12 @@ export function ActivityModalController() {
 
   const navigateToOrigin = useCallback(() => {
     if (isValidReturnOrigin(from)) {
-      router.replace(`/${from}`)
+      const originToPath: Record<string, string> = {
+        history: '/historico',
+        calendar: '/calendario',
+        dashboard: '/dashboard',
+      }
+      router.replace(originToPath[from!])
     } else {
       const params = new URLSearchParams(searchParams.toString())
       params.delete('modal')
@@ -126,6 +131,7 @@ export function ActivityModalController() {
         onEdit={openEdit}
         onDeleteConfirm={handleDelete}
         onStartExecution={openExecution}
+        hideActions={from === 'history'}
       />
     )
   }

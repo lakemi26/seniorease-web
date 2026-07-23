@@ -14,9 +14,10 @@ interface ActivityDetailsDialogProps {
   onEdit: (id: string) => void
   onDeleteConfirm: (id: string) => void
   onStartExecution?: (id: string) => void
+  hideActions?: boolean
 }
 
-export function ActivityDetailsDialog({ activityId, isOpen, onClose, onEdit, onDeleteConfirm, onStartExecution }: ActivityDetailsDialogProps) {
+export function ActivityDetailsDialog({ activityId, isOpen, onClose, onEdit, onDeleteConfirm, onStartExecution, hideActions = false }: ActivityDetailsDialogProps) {
   const { activity, loading, error, notFound } = useActivityDetails(activityId)
   const [view, setView] = useState<'details' | 'confirm-delete'>('details')
   const [isDeleting, setIsDeleting] = useState(false)
@@ -81,31 +82,26 @@ export function ActivityDetailsDialog({ activityId, isOpen, onClose, onEdit, onD
       <div className="flex flex-col gap-6">
         <ActivityDetails activity={activity} />
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4 border-t border-border">
-          {activity.status === 'pending' && onStartExecution && (
-            <Button variant="primary" size="large" onClick={() => onStartExecution(activityId!)}>
-              Começar atividade
+        {!hideActions && activity.status !== 'completed' && (
+          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4 border-t border-border">
+            {activity.status === 'pending' && onStartExecution && (
+              <Button variant="primary" size="large" onClick={() => onStartExecution(activityId!)}>
+                Começar atividade
+              </Button>
+            )}
+            {activity.status === 'inProgress' && onStartExecution && (
+              <Button variant="primary" size="large" onClick={() => onStartExecution(activityId!)}>
+                Continuar atividade
+              </Button>
+            )}
+            <Button variant="outline" onClick={handleClose}>
+              Fechar
             </Button>
-          )}
-          {activity.status === 'inProgress' && onStartExecution && (
-            <Button variant="primary" size="large" onClick={() => onStartExecution(activityId!)}>
-              Continuar atividade
-            </Button>
-          )}
-          {activity.status === 'completed' && (
-            <Button variant="primary" size="large" onClick={() => onStartExecution?.(activityId!)}>
-              Ver atividade concluída
-            </Button>
-          )}
-          <Button variant="outline" onClick={handleClose}>
-            Fechar
-          </Button>
-          {(activity.status === 'pending' || activity.status === 'inProgress') && (
-            <Button variant="outline" onClick={handleEdit}>
-              Editar atividade
-            </Button>
-          )}
-          {activity.status !== 'completed' && (
+            {(activity.status === 'pending' || activity.status === 'inProgress') && (
+              <Button variant="outline" onClick={handleEdit}>
+                Editar atividade
+              </Button>
+            )}
             <Button
               variant="outline"
               onClick={() => setView('confirm-delete')}
@@ -113,8 +109,8 @@ export function ActivityDetailsDialog({ activityId, isOpen, onClose, onEdit, onD
             >
               Excluir atividade
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     )
   }
