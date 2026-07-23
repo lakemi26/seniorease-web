@@ -36,7 +36,7 @@ export function RadioCardGroup<T extends string>({
             <label
               key={option.value}
               className={cn(
-                'flex flex-col gap-2 p-4 rounded-lg border-2 cursor-pointer',
+                'flex flex-col gap-2 p-4 rounded-lg border-2 cursor-pointer overflow-hidden',
                 'transition-all duration-normal break-words',
                 'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-focus',
                 isSelected
