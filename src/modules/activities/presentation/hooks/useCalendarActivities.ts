@@ -7,7 +7,7 @@ import { createActivityUseCases } from '@/modules/activities/application/use-cas
 import {
   startOfMonth,
   startOfNextMonth,
-  formatDateLong,
+  formatMonthYear,
 } from '../utils/date.utils'
 import type { Activity } from '../../domain/entities'
 
@@ -30,7 +30,7 @@ export function useCalendarActivities() {
   const [agendaPage, setAgendaPage] = useState(1)
   const unsubRef = useRef<(() => void) | null>(null)
 
-  const monthLabel = formatDateLong(currentMonth)
+  const monthLabel = formatMonthYear(currentMonth)
 
   const agendaActivities = useMemo(() => {
     return activities.slice(0, agendaPage * AGENDA_PAGE_SIZE)
@@ -102,6 +102,36 @@ export function useCalendarActivities() {
     setSelectedDate(date)
   }, [])
 
+  const goToPreviousDay = useCallback(() => {
+    setSelectedDate((prev) => {
+      if (!prev) return prev
+      const newDate = new Date(prev)
+      newDate.setDate(newDate.getDate() - 1)
+      if (
+        newDate.getMonth() !== prev.getMonth() ||
+        newDate.getFullYear() !== prev.getFullYear()
+      ) {
+        setCurrentMonth(new Date(newDate.getFullYear(), newDate.getMonth(), 1))
+      }
+      return newDate
+    })
+  }, [])
+
+  const goToNextDay = useCallback(() => {
+    setSelectedDate((prev) => {
+      if (!prev) return prev
+      const newDate = new Date(prev)
+      newDate.setDate(newDate.getDate() + 1)
+      if (
+        newDate.getMonth() !== prev.getMonth() ||
+        newDate.getFullYear() !== prev.getFullYear()
+      ) {
+        setCurrentMonth(new Date(newDate.getFullYear(), newDate.getMonth(), 1))
+      }
+      return newDate
+    })
+  }, [])
+
   const changeView = useCallback((newView: CalendarView) => {
     setView(newView)
   }, [])
@@ -120,6 +150,8 @@ export function useCalendarActivities() {
     changingMonth,
     goToPreviousMonth,
     goToNextMonth,
+    goToPreviousDay,
+    goToNextDay,
     goToToday,
     selectDate,
     changeView,

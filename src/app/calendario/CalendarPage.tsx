@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/presentation/hooks/useAuth'
 import { useAccessibility } from '@/presentation/hooks/useAccessibility'
 import { useCalendarActivities } from '@/modules/activities/presentation/hooks/useCalendarActivities'
@@ -9,23 +9,21 @@ import { CalendarHeader } from '@/modules/activities/presentation/components/cal
 import { CalendarViewSwitcher } from '@/modules/activities/presentation/components/calendar/CalendarViewSwitcher'
 import { CalendarMonthGrid } from '@/modules/activities/presentation/components/calendar/CalendarMonthGrid'
 import { CalendarDayAgenda } from '@/modules/activities/presentation/components/calendar/CalendarDayAgenda'
-import { ActivityAgenda } from '@/modules/activities/presentation/components/calendar/ActivityAgenda'
 import { CalendarEmptyState } from '@/modules/activities/presentation/components/calendar/CalendarEmptyState'
 import { CalendarSkeleton } from '@/modules/activities/presentation/components/calendar/CalendarSkeleton'
+import { ActivityModalController } from '@/modules/activities/presentation/components/ActivityModalController'
 import { ErrorState } from '@/modules/dashboard/presentation/components/ErrorState'
-import { isSameDay, startOfMonth } from '@/modules/activities/presentation/utils/date.utils'
+import { isSameDay, startOfMonth, formatDateFull } from '@/modules/activities/presentation/utils/date.utils'
 
 export function CalendarPage() {
   const { user } = useAuth()
   const { interface: interfaceMode } = useAccessibility()
   const isComplete = interfaceMode === 'complete'
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const {
     activities,
-    agendaActivities,
-    hasMoreAgenda,
-    loadMoreAgenda,
     loading,
     error,
     currentMonth,
@@ -35,20 +33,23 @@ export function CalendarPage() {
     changingMonth,
     goToPreviousMonth,
     goToNextMonth,
+    goToPreviousDay,
+    goToNextDay,
     goToToday,
     selectDate,
     changeView,
   } = useCalendarActivities()
 
   const handleViewDetails = (id: string) => {
-    router.push(`/atividades?modal=detalhes&id=${id}&from=calendar`)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('modal', 'detalhes')
+    params.set('id', id)
+    router.replace(`/calendario?${params.toString()}`)
   }
 
   const selectedDateActivities = selectedDate
     ? activities.filter((a) => isSameDay(a.scheduledAt, selectedDate))
     : []
-
-  const filteredActivities = selectedDate ? selectedDateActivities : activities
 
   if (loading && !changingMonth) {
     return <CalendarSkeleton />
@@ -72,9 +73,9 @@ export function CalendarPage() {
 
       <div className="flex flex-col gap-6">
         <CalendarHeader
-          monthLabel={monthLabel}
-          onPrevious={goToPreviousMonth}
-          onNext={goToNextMonth}
+          monthLabel={view === 'agenda' && selectedDate ? formatDateFull(selectedDate) : monthLabel}
+          onPrevious={view === 'agenda' ? goToPreviousDay : goToPreviousMonth}
+          onNext={view === 'agenda' ? goToNextDay : goToNextMonth}
           onToday={goToToday}
         />
 
@@ -100,22 +101,23 @@ export function CalendarPage() {
           />
         )}
 
-        {(view === 'agenda' || !isComplete) && (
-          activities.length === 0 && !loading ? (
-            <CalendarEmptyState variant="month" />
-          ) : (
-            <ActivityAgenda
-              activities={agendaActivities}
+        {(view === 'agenda' || !isComplete) && selectedDate && (
+          selectedDateActivities.length > 0 ? (
+            <CalendarDayAgenda
+              date={selectedDate}
+              activities={selectedDateActivities}
               onViewDetails={handleViewDetails}
-              hasMore={hasMoreAgenda}
-              onLoadMore={loadMoreAgenda}
             />
-          )
+          ) : !loading ? (
+            <CalendarEmptyState variant="day" />
+          ) : null
         )}
 
         {activities.length === 0 && !loading && view === 'month' && (
           <CalendarEmptyState variant="month" />
         )}
+
+        <ActivityModalController />
       </div>
     </>
   )

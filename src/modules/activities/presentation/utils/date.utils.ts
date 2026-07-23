@@ -35,6 +35,13 @@ export function formatDateLong(date: Date): string {
   })
 }
 
+export function formatMonthYear(date: Date): string {
+  return date.toLocaleDateString('pt-BR', {
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
 export function formatDateWeekday(date: Date): string {
   return date.toLocaleDateString('pt-BR', {
     weekday: 'long',
