@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useActivityHistory } from '@/modules/activities/presentation/hooks/useActivityHistory'
 import { ActivityHistoryFilters } from '@/modules/activities/presentation/components/history/ActivityHistoryFilters'
 import { ActivityHistoryList } from '@/modules/activities/presentation/components/history/ActivityHistoryList'
@@ -9,9 +9,11 @@ import { ActivityHistorySkeleton } from '@/modules/activities/presentation/compo
 import { ErrorState } from '@/modules/dashboard/presentation/components/ErrorState'
 import { LiveRegion } from '@/presentation/components/accessibility/LiveRegion'
 import { useAccessibility } from '@/presentation/hooks/useAccessibility'
+import { ActivityModalController } from '@/modules/activities/presentation/components/ActivityModalController'
 
 export function HistoryPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { interface: interfaceMode } = useAccessibility()
   const isBasic = interfaceMode === 'basic'
 
@@ -28,7 +30,11 @@ export function HistoryPage() {
   } = useActivityHistory()
 
   const handleViewDetails = (id: string) => {
-    router.push(`/atividades?modal=detalhes&id=${id}&from=history`)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('modal', 'detalhes')
+    params.set('id', id)
+    params.set('from', 'history')
+    router.replace(`/historico?${params.toString()}`)
   }
 
   if (loading) {
@@ -80,6 +86,8 @@ export function HistoryPage() {
             onView={handleViewDetails}
           />
         )}
+
+        <ActivityModalController />
       </div>
     </>
   )
