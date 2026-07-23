@@ -12,7 +12,6 @@ import { ActivityExecutionIntroduction } from './ActivityExecutionIntroduction'
 import { GuidedActivityStep } from './GuidedActivityStep'
 import { StepCompletionFeedback } from './StepCompletionFeedback'
 import { ActivityCompletionConfirmation } from './ActivityCompletionConfirmation'
-import { ActivityCompletionSummary } from './ActivityCompletionSummary'
 import { ActivityWithoutSteps } from './ActivityWithoutSteps'
 import { ReopenStepConfirmation } from './ReopenStepConfirmation'
 import { ActivityExecutionSkeleton } from './ActivityExecutionSkeleton'
@@ -66,16 +65,18 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
   }, [isOpen])
 
   useEffect(() => {
-    if (activity && activity.status !== 'pending') {
-      if (totalSteps === 0) {
+    if (!activity) return
+
+    if (activity.status === 'pending') {
+      setView('introduction')
+    } else if (activity.status === 'inProgress') {
+    if (totalSteps === 0) {
         setView('step')
       } else if (allStepsCompleted) {
         setView('completion-confirm')
       } else {
         setView('step')
       }
-    } else if (activity && activity.status === 'pending') {
-      setView('introduction')
     }
   }, [activity, allStepsCompleted, totalSteps])
 
@@ -89,11 +90,11 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
   }, [startActivity, totalSteps])
 
   const handleCompleteStep = useCallback(async () => {
-    await completeCurrentStep()
-    if (!error) {
+    const ok = await completeCurrentStep()
+    if (ok) {
       setView('step-feedback')
     }
-  }, [completeCurrentStep, error])
+  }, [completeCurrentStep])
 
   const handleNextStep = useCallback(() => {
     if (currentStepIndex < totalSteps - 1) {
@@ -114,15 +115,11 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
   }, [currentStepIndex, setCurrentStepIndex])
 
   const handleConfirmCompletion = useCallback(async () => {
-    await completeActivity()
-    if (!error) {
-      setView('completed-summary')
+    const ok = await completeActivity()
+    if (ok) {
+      onClose()
     }
-  }, [completeActivity, error])
-
-  const handleCloseSummary = useCallback(() => {
-    onClose()
-  }, [onClose])
+  }, [completeActivity, onClose])
 
   const handleReopenStep = useCallback(async () => {
     if (!reopenStepId) return
@@ -207,6 +204,7 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
           <ActivityWithoutSteps
             activity={activity}
             onStart={handleStart}
+            onComplete={handleConfirmCompletion}
             saving={saving}
           />
         </div>
@@ -247,10 +245,6 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
           />
         </div>
       )
-    }
-
-    if (view === 'completed-summary') {
-      return <ActivityCompletionSummary activity={activity} onClose={handleCloseSummary} />
     }
 
     if (view === 'reopen-step-confirm' && reopenStepId) {

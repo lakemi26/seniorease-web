@@ -90,16 +90,18 @@ export function useActivityExecution(activityId: string | null) {
     }
   }, [user, activityId])
 
-  const completeCurrentStep = useCallback(async () => {
-    if (!user || !activityId) return
+  const completeCurrentStep = useCallback(async (): Promise<boolean> => {
+    if (!user || !activityId) return false
     const step = sortedSteps[currentStepIndex]
-    if (!step || step.completed) return
+    if (!step || step.completed) return false
     setSaving(true)
     setError(null)
     try {
       await useCases.completeActivityStep(activityId, step.id, user.uid)
+      return true
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao concluir etapa.')
+      return false
     } finally {
       setSaving(false)
     }
@@ -118,14 +120,16 @@ export function useActivityExecution(activityId: string | null) {
     }
   }, [user, activityId])
 
-  const completeActivity = useCallback(async () => {
-    if (!user || !activityId) return
+  const completeActivity = useCallback(async (): Promise<boolean> => {
+    if (!user || !activityId) return false
     setSaving(true)
     setError(null)
     try {
       await useCases.completeActivity(activityId, user.uid)
+      return true
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao concluir atividade.')
+      return false
     } finally {
       setSaving(false)
     }
