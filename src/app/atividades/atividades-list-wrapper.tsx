@@ -32,6 +32,8 @@ function AtividadesListInner() {
     retry,
     isEmpty,
     isFilterEmpty,
+    hasMore,
+    loadMore,
   } = useActivityList()
 
   const effectiveMode = mode === 'basic' && interfaceMode === 'complete' ? 'complete' : mode
@@ -82,24 +84,34 @@ function AtividadesListInner() {
       {isFilterEmpty && <ActivitiesEmptyState variant="filter-empty" />}
 
       {!isEmpty && !isFilterEmpty && (
-        <div className="flex flex-col gap-3" role="list" aria-label="Lista de atividades">
-          {sorted.map((activity) => (
-            <div key={activity.id} role="listitem">
-              <button
-                type="button"
-                onClick={() => {
-                  const params = new URLSearchParams(searchParams.toString())
-                  params.set('modal', 'detalhes')
-                  params.set('id', activity.id)
-                  router.push(`/atividades?${params.toString()}`)
-                }}
-                className="w-full text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus rounded-md"
-              >
-                <ActivityCard activity={activity} />
-              </button>
-            </div>
-          ))}
-        </div>
+        <>
+          <div className="flex flex-col gap-3" role="list" aria-label="Lista de atividades">
+            {sorted.map((activity) => (
+              <div key={activity.id} role="listitem">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const params = new URLSearchParams(searchParams.toString())
+                    params.set('modal', 'detalhes')
+                    params.set('id', activity.id)
+                    router.push(`/atividades?${params.toString()}`)
+                  }}
+                  className="w-full text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus rounded-md"
+                >
+                  <ActivityCard activity={activity} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-center pt-2">
+            {hasMore ? (
+              <Button variant="outline" size="normal" onClick={loadMore}>
+                Carregar mais atividades
+              </Button>
+            ) : null}
+          </div>
+        </>
       )}
 
       <ActivityModalController />

@@ -64,4 +64,19 @@ export interface IActivityRepository {
   ): Unsubscribe
 
   getWeeklySummary(uid: string): Promise<WeeklySummary>
+
+  fetchCompletedActivitiesPage(
+    userId: string,
+    filters: ActivityHistoryFilters,
+    cursor: unknown | null,
+    pageSize: number
+  ): Promise<{ data: Activity[]; nextCursor: unknown | null }>
+
+  fetchCalendarActivitiesPage(
+    userId: string,
+    startDate: Date,
+    endDate: Date,
+    cursor: unknown | null,
+    pageSize: number
+  ): Promise<{ data: Activity[]; nextCursor: unknown | null }>
 }

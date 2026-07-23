@@ -4,6 +4,7 @@ import {
   where,
   orderBy,
   limit,
+  startAfter,
   onSnapshot,
   getDocs,
   getDoc,
@@ -14,6 +15,7 @@ import {
   runTransaction,
   Timestamp,
   serverTimestamp,
+  type DocumentSnapshot,
 } from 'firebase/firestore'
 import { getFirebaseFirestore } from '@/infrastructure/firebase/firebase.firestore'
 import type { IActivityRepository, ActivityFilters, Unsubscribe, ActivityHistoryFilters } from '../../domain/repositories'
@@ -76,7 +78,7 @@ export function createFirebaseActivityRepository(): IActivityRepository {
   ): Unsubscribe {
     const db = getDb()
     const ref = collection(db, 'activities')
-    const constraints = [where('userId', '==', uid), orderBy('scheduledAt', 'asc'), limit(50)]
+    const constraints = [where('userId', '==', uid), orderBy('scheduledAt', 'asc'), limit(200)]
     const q = query(ref, ...constraints)
 
     return onSnapshot(
@@ -589,7 +591,7 @@ export function createFirebaseActivityRepository(): IActivityRepository {
       where('scheduledAt', '>=', Timestamp.fromDate(startDate)),
       where('scheduledAt', '<', Timestamp.fromDate(endDate)),
       orderBy('scheduledAt', 'asc'),
-      limit(100)
+      limit(200)
     )
 
     return onSnapshot(
@@ -606,6 +608,103 @@ export function createFirebaseActivityRepository(): IActivityRepository {
         onError?.(error)
       }
     )
+  }
+
+  async function fetchCompletedActivitiesPage(
+    userId: string,
+    filters: ActivityHistoryFilters,
+    cursor: unknown | null,
+    pageSize: number
+  ): Promise<{ data: Activity[]; nextCursor: unknown | null }> {
+    const db = getDb()
+    const ref = collection(db, 'activities')
+
+    const constraints: Parameters<typeof query>[1][] = [
+      where('userId', '==', userId),
+      where('status', '==', 'completed'),
+      orderBy('completedAt', 'desc'),
+    ]
+
+    if (cursor) {
+      constraints.push(startAfter(cursor as DocumentSnapshot))
+    }
+
+    constraints.push(limit(pageSize))
+
+    const q = query(ref, ...constraints)
+    const snapshot = await getDocs(q)
+
+    let docs = snapshot.docs.map((d) => {
+      const data = { id: d.id, ...d.data() } as ActivityDocument
+      return data
+    })
+
+    let activities = mapActivityDocuments(docs)
+
+    if (filters.category && filters.category !== 'all') {
+      activities = activities.filter((a) => a.category === filters.category)
+    }
+
+    if (filters.search) {
+      const qs = filters.search.toLowerCase()
+      activities = activities.filter((a) => a.title.toLowerCase().includes(qs))
+    }
+
+    if (filters.period === 'week') {
+      const now = new Date()
+      const startOfWeek = new Date(now)
+      startOfWeek.setDate(now.getDate() - now.getDay())
+      startOfWeek.setHours(0, 0, 0, 0)
+      activities = activities.filter((a) => a.completedAt && a.completedAt >= startOfWeek)
+    } else if (filters.period === 'month') {
+      const now = new Date()
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+      activities = activities.filter((a) => a.completedAt && a.completedAt >= startOfMonth)
+    } else if (filters.period === 'custom' && filters.startDate && filters.endDate) {
+      activities = activities.filter(
+        (a) => a.completedAt && a.completedAt >= filters.startDate! && a.completedAt <= filters.endDate!
+      )
+    }
+
+    const nextCursor = snapshot.docs.length === pageSize ? snapshot.docs[snapshot.docs.length - 1] : null
+    return { data: activities, nextCursor }
+  }
+
+  async function fetchCalendarActivitiesPage(
+    userId: string,
+    startDate: Date,
+    endDate: Date,
+    cursor: unknown | null,
+    pageSize: number
+  ): Promise<{ data: Activity[]; nextCursor: unknown | null }> {
+    const db = getDb()
+    const ref = collection(db, 'activities')
+
+    const constraints: Parameters<typeof query>[1][] = [
+      where('userId', '==', userId),
+      where('scheduledAt', '>=', Timestamp.fromDate(startDate)),
+      where('scheduledAt', '<', Timestamp.fromDate(endDate)),
+      orderBy('scheduledAt', 'asc'),
+    ]
+
+    if (cursor) {
+      constraints.push(startAfter(cursor as DocumentSnapshot))
+    }
+
+    constraints.push(limit(pageSize))
+
+    const q = query(ref, ...constraints)
+    const snapshot = await getDocs(q)
+
+    const docs = snapshot.docs.map((d) => {
+      const data = { id: d.id, ...d.data() } as ActivityDocument
+      return data
+    })
+    const filtered = docs.filter((d) => d.status !== 'cancelled')
+    const activities = mapActivityDocuments(filtered)
+
+    const nextCursor = snapshot.docs.length === pageSize ? snapshot.docs[snapshot.docs.length - 1] : null
+    return { data: activities, nextCursor }
   }
 
   async function reopenActivity(activityId: string, userId: string): Promise<Activity> {
@@ -658,6 +757,8 @@ export function createFirebaseActivityRepository(): IActivityRepository {
     dismissReminder,
     subscribeToCompletedActivities,
     subscribeToActivitiesByPeriod,
+    fetchCompletedActivitiesPage,
+    fetchCalendarActivitiesPage,
     getWeeklySummary,
   }
 }

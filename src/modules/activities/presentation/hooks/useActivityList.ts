@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useAuth } from '@/presentation/hooks/useAuth'
 import { createFirebaseActivityRepository } from '@/modules/activities/infrastructure/repositories/firebase-activity.repository'
 import { createActivityUseCases } from '@/modules/activities/application/use-cases'
@@ -11,6 +11,8 @@ const repository = createFirebaseActivityRepository()
 const activityUseCases = createActivityUseCases(repository)
 
 export type PeriodFilter = 'all' | 'today' | 'upcoming' | 'completed'
+
+const PAGE_SIZE = 10
 
 export function useActivityList() {
   const { user } = useAuth()
@@ -23,6 +25,7 @@ export function useActivityList() {
   const [searchQuery, setSearchQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<Activity['category'] | 'all'>('all')
   const [mode, setMode] = useState<'basic' | 'complete'>('basic')
+  const [displayPage, setDisplayPage] = useState(1)
 
   const unsubscriberRef = useRef<(() => void) | null>(null)
 
@@ -39,7 +42,6 @@ export function useActivityList() {
     const filters: ActivityFilters = {
       status: statusFilter,
       period: periodFilter,
-      search: searchQuery || undefined,
       category: categoryFilter,
     }
 
@@ -48,7 +50,10 @@ export function useActivityList() {
       filters,
       (data) => {
         setActivities(data)
-        if (mountedRef.current) setLoading(false)
+        if (mountedRef.current) {
+          setLoading(false)
+          setDisplayPage(1)
+        }
         setError(null)
       },
       (err) => {
@@ -63,7 +68,11 @@ export function useActivityList() {
       unsub()
       unsubscriberRef.current = null
     }
-  }, [user, statusFilter, periodFilter, searchQuery, categoryFilter])
+  }, [user, statusFilter, periodFilter, categoryFilter])
+
+  useEffect(() => {
+    setDisplayPage(1)
+  }, [searchQuery])
 
   useEffect(() => {
     mountedRef.current = true
@@ -77,6 +86,22 @@ export function useActivityList() {
     setCategoryFilter('all')
   }, [])
 
+  const filteredActivities = useMemo(() => {
+    if (!searchQuery) return activities
+    const q = searchQuery.toLowerCase()
+    return activities.filter((a) => a.title.toLowerCase().includes(q))
+  }, [activities, searchQuery])
+
+  const paginatedActivities = useMemo(() => {
+    return filteredActivities.slice(0, displayPage * PAGE_SIZE)
+  }, [filteredActivities, displayPage])
+
+  const hasMore = paginatedActivities.length < filteredActivities.length
+
+  const loadMore = useCallback(() => {
+    setDisplayPage((prev) => prev + 1)
+  }, [])
+
   const hasActiveFilters =
     statusFilter !== 'all' || periodFilter !== 'all' || searchQuery !== '' || categoryFilter !== 'all'
 
@@ -84,7 +109,8 @@ export function useActivityList() {
   const isFilterEmpty = !loading && !error && activities.length === 0 && hasActiveFilters
 
   return {
-    activities,
+    activities: paginatedActivities,
+    allActivities: filteredActivities,
     loading,
     error,
     statusFilter,
@@ -102,5 +128,7 @@ export function useActivityList() {
     hasActiveFilters,
     isEmpty,
     isFilterEmpty,
+    hasMore,
+    loadMore,
   }
 }

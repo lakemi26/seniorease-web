@@ -312,6 +312,31 @@ export function createActivityUseCases(repository: IActivityRepository) {
     return repository.reopenActivity(id, userId)
   }
 
+  function fetchCompletedActivitiesPage(
+    userId: string,
+    filters: ActivityHistoryFilters,
+    cursor: unknown | null,
+    pageSize: number
+  ): Promise<{ data: Activity[]; nextCursor: unknown | null }> {
+    if (!userId) {
+      throw new ActivityError('Usuário não identificado.')
+    }
+    return repository.fetchCompletedActivitiesPage(userId, filters, cursor, pageSize)
+  }
+
+  function fetchCalendarActivitiesPage(
+    userId: string,
+    startDate: Date,
+    endDate: Date,
+    cursor: unknown | null,
+    pageSize: number
+  ): Promise<{ data: Activity[]; nextCursor: unknown | null }> {
+    if (!userId) {
+      throw new ActivityError('Usuário não identificado.')
+    }
+    return repository.fetchCalendarActivitiesPage(userId, startDate, endDate, cursor, pageSize)
+  }
+
   return {
     getActivity,
     createActivity,
@@ -331,6 +356,8 @@ export function createActivityUseCases(repository: IActivityRepository) {
     dismissReminder,
     subscribeToActivityHistory,
     subscribeToCalendarActivities,
+    fetchCompletedActivitiesPage,
+    fetchCalendarActivitiesPage,
     getWeeklySummary,
   }
 }
