@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useAuth } from '@/presentation/hooks/useAuth'
 import { createFirebaseActivityRepository } from '@/modules/activities/infrastructure/repositories/firebase-activity.repository'
 import { createActivityUseCases } from '@/modules/activities/application/use-cases'
@@ -16,6 +16,8 @@ const useCases = createActivityUseCases(repository)
 
 export type CalendarView = 'agenda' | 'month'
 
+const AGENDA_PAGE_SIZE = 15
+
 export function useCalendarActivities() {
   const { user } = useAuth()
   const [activities, setActivities] = useState<Activity[]>([])
@@ -25,15 +27,27 @@ export function useCalendarActivities() {
   const [view, setView] = useState<CalendarView>('agenda')
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date())
   const [changingMonth, setChangingMonth] = useState(false)
+  const [agendaPage, setAgendaPage] = useState(1)
   const unsubRef = useRef<(() => void) | null>(null)
 
   const monthLabel = formatDateLong(currentMonth)
+
+  const agendaActivities = useMemo(() => {
+    return activities.slice(0, agendaPage * AGENDA_PAGE_SIZE)
+  }, [activities, agendaPage])
+
+  const hasMoreAgenda = agendaActivities.length < activities.length
+
+  const loadMoreAgenda = useCallback(() => {
+    setAgendaPage((prev) => prev + 1)
+  }, [])
 
   const subscribe = useCallback((month: Date) => {
     if (!user) return
 
     setLoading(true)
     setError(null)
+    setAgendaPage(1)
 
     const start = startOfMonth(month)
     const end = startOfNextMonth(month)
@@ -94,6 +108,9 @@ export function useCalendarActivities() {
 
   return {
     activities,
+    agendaActivities,
+    hasMoreAgenda,
+    loadMoreAgenda,
     loading,
     error,
     currentMonth,

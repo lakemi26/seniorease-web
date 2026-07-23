@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '@/presentation/components/ui/Button'
 import { ActivityAgendaItem } from './ActivityAgendaItem'
 import { sortActivities } from '../../utils/activity.utils'
 import { formatDateWeekday } from '../../utils/date.utils'
@@ -8,6 +9,8 @@ import type { Activity } from '../../../domain/entities'
 interface ActivityAgendaProps {
   activities: Activity[]
   onViewDetails: (id: string) => void
+  hasMore?: boolean
+  onLoadMore?: () => void
 }
 
 interface DayGroup {
@@ -35,7 +38,7 @@ function groupByDay(activities: Activity[]): DayGroup[] {
   return Array.from(groups.values())
 }
 
-export function ActivityAgenda({ activities, onViewDetails }: ActivityAgendaProps) {
+export function ActivityAgenda({ activities, onViewDetails, hasMore, onLoadMore }: ActivityAgendaProps) {
   if (activities.length === 0) return null
 
   const groups = groupByDay(activities)
@@ -56,6 +59,14 @@ export function ActivityAgenda({ activities, onViewDetails }: ActivityAgendaProp
           </div>
         </div>
       ))}
+
+      {hasMore && onLoadMore && (
+        <div className="flex justify-center pt-2">
+          <Button variant="outline" size="normal" onClick={onLoadMore}>
+            Carregar mais atividades
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

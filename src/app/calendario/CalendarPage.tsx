@@ -23,6 +23,9 @@ export function CalendarPage() {
 
   const {
     activities,
+    agendaActivities,
+    hasMoreAgenda,
+    loadMoreAgenda,
     loading,
     error,
     currentMonth,
@@ -102,8 +105,10 @@ export function CalendarPage() {
             <CalendarEmptyState variant="month" />
           ) : (
             <ActivityAgenda
-              activities={activities}
+              activities={agendaActivities}
               onViewDetails={handleViewDetails}
+              hasMore={hasMoreAgenda}
+              onLoadMore={loadMoreAgenda}
             />
           )
         )}
