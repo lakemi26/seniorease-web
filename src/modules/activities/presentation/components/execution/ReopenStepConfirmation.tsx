@@ -13,7 +13,7 @@ export function ReopenStepConfirmation({ stepTitle, onConfirm, onCancel, saving 
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-text-secondary">
-        Reabrir a etapa "{stepTitle}"? Ela voltará a ficar pendente.
+        Reabrir a etapa &quot;{stepTitle}&quot;? Ela voltará a ficar pendente.
       </p>
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onCancel}>

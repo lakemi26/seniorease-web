@@ -45,6 +45,21 @@ export function useDashboard() {
   const initializedRef = useRef(false)
   const unsubscribersRef = useRef<(() => void)[]>([])
 
+  const [prevRemindersEnabled, setPrevRemindersEnabled] = useState(remindersEnabled)
+
+  if (prevRemindersEnabled !== remindersEnabled) {
+    setPrevRemindersEnabled(remindersEnabled)
+    if (remindersEnabled === false) {
+      setRemindersLoading(false)
+      setDueReminders([])
+      setRemindersError(null)
+    } else if (remindersEnabled === true) {
+      setRemindersLoading(true)
+      setDueReminders([])
+      setRemindersError(null)
+    }
+  }
+
   const retry = useCallback(() => {
     setError(null)
     setIsInitialized(false)
@@ -98,21 +113,6 @@ export function useDashboard() {
     const unsubRecent = activityUseCases.subscribeToRecentCompletedActivities(uid, (a) => { setRecentCompleted(a); done() }, onError)
     unsubscribersRef.current.push(unsubRecent)
 
-    if (remindersEnabled) {
-      setRemindersLoading(true)
-      const next24h = new Date(Date.now() + 24 * 60 * 60 * 1000)
-      const unsubReminders = activityUseCases.subscribeToDueReminders(
-        uid,
-        next24h,
-        (data) => { setDueReminders(data); setRemindersLoading(false) },
-        (err) => { setRemindersError(err.message); setRemindersLoading(false) }
-      )
-      unsubscribersRef.current.push(unsubReminders)
-    } else {
-      setDueReminders([])
-      setRemindersLoading(false)
-    }
-
     activityUseCases.getWeeklySummary(uid).then((s) => { setWeeklySummary(s); done() }).catch((err) => { onError(err); done() })
 
     return () => {
@@ -120,7 +120,19 @@ export function useDashboard() {
       unsubscribersRef.current = []
       initializedRef.current = false
     }
-  }, [user, retryCount, remindersEnabled])
+  }, [user, retryCount])
+
+  useEffect(() => {
+    if (!user || !remindersEnabled) return
+    const next24h = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    const unsubReminders = activityUseCases.subscribeToDueReminders(
+      user.uid,
+      next24h,
+      (data) => { setDueReminders(data); setRemindersLoading(false) },
+      (err) => { setRemindersError(err.message); setRemindersLoading(false) }
+    )
+    return () => { unsubReminders() }
+  }, [user, remindersEnabled])
 
   return {
     nextActivity,

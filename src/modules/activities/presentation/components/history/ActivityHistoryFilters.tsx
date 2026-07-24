@@ -26,9 +26,12 @@ export function ActivityHistoryFilters({ filters, onApply, onClear }: ActivityHi
   const [dateError, setDateError] = useState<string | null>(null)
 
   const periodRef = useRef(period)
-  periodRef.current = period
   const categoryRef = useRef(category)
-  categoryRef.current = category
+
+  useEffect(() => {
+    periodRef.current = period
+    categoryRef.current = category
+  }, [period, category])
 
   useEffect(() => {
     const currentSearch = search || ''

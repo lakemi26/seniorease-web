@@ -57,11 +57,13 @@ export function usePersonalization(): UsePersonalizationReturn {
   const pageState: 'loading' | 'error' | 'content' =
     isLoading ? 'loading' : error ? 'error' : 'content'
 
-  useEffect(() => {
+  const [prevIsLoading, setPrevIsLoading] = useState(isLoading)
+  if (prevIsLoading !== isLoading) {
+    setPrevIsLoading(isLoading)
     if (!isLoading && !error) {
       setDraft(preferences)
     }
-  }, [isLoading, error]) // only sync from provider when loading finishes
+  }
 
   const hasUnsavedChanges = !preferencesEqual(draft, preferences)
 

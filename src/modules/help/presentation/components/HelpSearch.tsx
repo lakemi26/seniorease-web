@@ -24,10 +24,6 @@ export function HelpSearch({
   const [localValue, setLocalValue] = useState(value)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-  useEffect(() => {
-    setLocalValue(value)
-  }, [value])
-
   const handleChange = (newValue: string) => {
     setLocalValue(newValue)
     if (debounceRef.current) clearTimeout(debounceRef.current)

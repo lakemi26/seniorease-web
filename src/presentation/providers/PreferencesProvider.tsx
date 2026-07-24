@@ -73,15 +73,9 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     }
 
     if (!user) {
-      setPreferences(DEFAULT_USER_PREFERENCES)
-      setIsLoading(false)
-      setError(null)
       applyDataAttributes(DEFAULT_USER_PREFERENCES)
       return
     }
-
-    setIsLoading(true)
-    setError(null)
 
     const repository = createFirebaseAuthRepository()
     const useCases = createAuthUseCases(repository)

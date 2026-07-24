@@ -55,17 +55,18 @@ export function PersonalizationPageContent() {
     confirmLeave,
     dismissLeave,
   } = usePersonalization()
-  const [announcement, setAnnouncement] = useState('')
   const successRef = useRef<HTMLDivElement>(null)
+  const announcement = saveSuccess
+    ? 'Suas preferências foram salvas.'
+    : saveError
+      ? saveError
+      : ''
 
   useEffect(() => {
     if (saveSuccess) {
-      setAnnouncement('Suas preferências foram salvas.')
       successRef.current?.focus()
-    } else if (saveError) {
-      setAnnouncement(saveError)
     }
-  }, [saveSuccess, saveError])
+  }, [saveSuccess])
 
   if (pageState === 'loading') {
     return (

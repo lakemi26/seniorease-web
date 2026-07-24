@@ -32,6 +32,14 @@ export function useCalendarActivities() {
 
   const monthLabel = formatMonthYear(currentMonth)
 
+  const [prevMonthKey, setPrevMonthKey] = useState(0)
+
+  if (prevMonthKey !== currentMonth.getTime()) {
+    setPrevMonthKey(currentMonth.getTime())
+    setLoading(true)
+    setError(null)
+  }
+
   const agendaActivities = useMemo(() => {
     return activities.slice(0, agendaPage * AGENDA_PAGE_SIZE)
   }, [activities, agendaPage])
@@ -42,45 +50,33 @@ export function useCalendarActivities() {
     setAgendaPage((prev) => prev + 1)
   }, [])
 
-  const subscribe = useCallback((month: Date) => {
+  useEffect(() => {
     if (!user) return
 
-    setLoading(true)
-    setError(null)
-    setAgendaPage(1)
-
-    const start = startOfMonth(month)
-    const end = startOfNextMonth(month)
-
+    const start = startOfMonth(currentMonth)
+    const end = startOfNextMonth(currentMonth)
     const unsub = useCases.subscribeToCalendarActivities(
       user.uid,
       start,
       end,
       (data) => {
         setActivities(data)
-        setLoading(false)
+        setAgendaPage(1)
         setChangingMonth(false)
+        setLoading(false)
       },
       (err) => {
-        setError(err.message)
         setLoading(false)
+        setError(err.message)
         setChangingMonth(false)
       }
     )
-
     unsubRef.current = unsub
-
-    return unsub
-  }, [user])
-
-  useEffect(() => {
-    if (!user) return
-    const unsub = subscribe(currentMonth)
     return () => {
-      unsub?.()
+      unsub()
       unsubRef.current = null
     }
-  }, [user, currentMonth, subscribe])
+  }, [user, currentMonth])
 
   const goToPreviousMonth = useCallback(() => {
     setChangingMonth(true)

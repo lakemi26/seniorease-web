@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { useAuth } from '@/presentation/hooks/useAuth'
 import { createFirebaseActivityRepository } from '@/modules/activities/infrastructure/repositories/firebase-activity.repository'
 import { createActivityUseCases } from '@/modules/activities/application/use-cases'
@@ -17,35 +17,47 @@ export function useActivityExecution(activityId: string | null) {
   const { user } = useAuth()
   const [activity, setActivity] = useState<Activity | null>(null)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
   const unsubRef = useRef<(() => void) | null>(null)
 
-  const sortedSteps = activity
-    ? [...activity.steps].sort((a, b) => a.order - b.order)
-    : []
+  const [prevLoadId, setPrevLoadId] = useState<string | null>(null)
+
+  if (prevLoadId !== activityId) {
+    setPrevLoadId(activityId)
+    if (activityId !== null) {
+      setLoading(true)
+      setError(null)
+    }
+  }
+
+  const sortedSteps = useMemo(
+    () => (activity ? [...activity.steps].sort((a, b) => a.order - b.order) : []),
+    [activity]
+  )
 
   const nextPendingIndex = sortedSteps.findIndex((s) => !s.completed)
-  const [currentStepIndex, setCurrentStepIndex] = useState(0)
+  const stepsKey = useMemo(
+    () => sortedSteps.map((s) => `${s.id}:${s.completed}`).join('|'),
+    [sortedSteps]
+  )
 
-  useEffect(() => {
-    if (nextPendingIndex >= 0 && nextPendingIndex !== currentStepIndex) {
-      setCurrentStepIndex(nextPendingIndex)
-    }
-  }, [nextPendingIndex])
+  const [currentStepIndex, setCurrentStepIndexState] = useState(0)
+  const [prevStepKey, setPrevStepKey] = useState<{ id: string | null; stepsKey: string }>({ id: null, stepsKey: '' })
 
-  useEffect(() => {
-    setCurrentStepIndex(0)
-  }, [activityId])
+  if (prevStepKey.id !== activityId || prevStepKey.stepsKey !== stepsKey) {
+    setPrevStepKey({ id: activityId, stepsKey })
+    setCurrentStepIndexState(nextPendingIndex >= 0 ? nextPendingIndex : 0)
+  }
+
+  const setCurrentStepIndex = useCallback((index: number) => {
+    setCurrentStepIndexState(index)
+  }, [])
 
   useEffect(() => {
     if (!activityId) {
-      setLoading(false)
       return
     }
-
-    setLoading(true)
-    setError(null)
 
     const db = getFirebaseFirestore()
     const docRef = doc(db, 'activities', activityId)
@@ -66,8 +78,8 @@ export function useActivityExecution(activityId: string | null) {
         setLoading(false)
       },
       (err) => {
-        setError(err.message)
         setLoading(false)
+        setError(err.message)
       }
     )
 
@@ -148,7 +160,9 @@ export function useActivityExecution(activityId: string | null) {
     }
   }, [user, activityId])
 
-  const clearError = useCallback(() => setError(null), [])
+  const clearError = useCallback(() => {
+    setError(null)
+  }, [])
 
   const completedStepsCount = sortedSteps.filter((s) => s.completed).length
   const allStepsCompleted = sortedSteps.length > 0 && sortedSteps.every((s) => s.completed)

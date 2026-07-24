@@ -15,7 +15,7 @@ export function ReopenActivityConfirmation({ activityTitle, onConfirm, onCancel,
       <div className="flex flex-col gap-2">
         <h3 className="text-lg font-semibold text-text">Reabrir atividade</h3>
         <p className="text-sm text-text-muted">
-          Reabrir "{activityTitle}"? A atividade voltará a ficar em andamento e você
+          Reabrir &quot;{activityTitle}&quot;? A atividade voltará a ficar em andamento e você
           poderá continuar de onde parou.
         </p>
       </div>

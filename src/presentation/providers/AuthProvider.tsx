@@ -81,8 +81,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!user) {
-      setProfile(null)
-      setIsProfileLoaded(false)
       return
     }
 

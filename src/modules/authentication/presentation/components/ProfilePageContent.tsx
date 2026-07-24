@@ -1,9 +1,7 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { useAuth } from '@/presentation/hooks/useAuth'
-import { useAccessibility } from '@/presentation/hooks/useAccessibility'
 import { useProfile } from '@/modules/authentication/presentation/hooks/useProfile'
 import { ProfileSkeleton } from '@/modules/authentication/presentation/components/ProfileSkeleton'
 import { ProfileErrorState } from '@/modules/authentication/presentation/components/ProfileErrorState'
@@ -15,9 +13,6 @@ import { SessionSection } from '@/modules/authentication/presentation/components
 import { DeleteAccountSection } from '@/modules/authentication/presentation/components/DeleteAccountSection'
 import Link from 'next/link'
 import { LiveRegion } from '@/presentation/components/accessibility/LiveRegion'
-import { Container } from '@/presentation/components/layout/Container'
-import { Card } from '@/presentation/components/ui/Card'
-import { AccessibleAlert } from '@/presentation/components/feedback/AccessibleAlert'
 
 function UnsavedChangesGuard({
   hasUnsavedChanges,
@@ -40,9 +35,6 @@ function UnsavedChangesGuard({
 
 export function ProfilePageContent() {
   const { user } = useAuth()
-  const { interface: interfaceMode } = useAccessibility()
-  const router = useRouter()
-  const announcementRef = useRef<string>('')
 
   const {
     profile,
@@ -59,7 +51,6 @@ export function ProfilePageContent() {
     resetError,
     nameSuccess,
     resetSuccess,
-    originalName,
     retry,
     startEditing,
     cancelEditing,
@@ -78,13 +69,7 @@ export function ProfilePageContent() {
     errors,
   } = useProfile()
 
-  useEffect(() => {
-    if (nameSuccess) {
-      announcementRef.current = nameSuccess
-    } else if (resetSuccess) {
-      announcementRef.current = resetSuccess
-    }
-  }, [nameSuccess, resetSuccess])
+  const announcement = nameSuccess || resetSuccess || 'Perfil carregado.'
 
   if (pageState === 'loading') {
     return (
@@ -109,7 +94,7 @@ export function ProfilePageContent() {
     <>
       <UnsavedChangesGuard hasUnsavedChanges={hasUnsavedChanges} />
 
-      <LiveRegion message={announcementRef.current || 'Perfil carregado.'} />
+      <LiveRegion message={announcement} />
 
       <div className="flex flex-col gap-6 max-w-2xl">
         <div className="flex flex-col gap-2">

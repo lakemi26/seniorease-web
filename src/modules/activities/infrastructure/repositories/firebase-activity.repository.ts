@@ -536,7 +536,7 @@ export function createFirebaseActivityRepository(): IActivityRepository {
     return onSnapshot(
       q,
       (snapshot) => {
-        let docs = snapshot.docs.map((d) => {
+        const docs = snapshot.docs.map((d) => {
           const data = { id: d.id, ...d.data() } as ActivityDocument
           return data
         })
@@ -634,7 +634,7 @@ export function createFirebaseActivityRepository(): IActivityRepository {
     const q = query(ref, ...constraints)
     const snapshot = await getDocs(q)
 
-    let docs = snapshot.docs.map((d) => {
+    const docs = snapshot.docs.map((d) => {
       const data = { id: d.id, ...d.data() } as ActivityDocument
       return data
     })

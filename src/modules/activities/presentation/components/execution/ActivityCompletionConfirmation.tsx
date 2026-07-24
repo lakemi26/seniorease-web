@@ -24,7 +24,7 @@ export function ActivityCompletionConfirmation({
       <div className="flex flex-col gap-2 text-center">
         <h3 className="text-lg font-semibold text-text">Concluir atividade?</h3>
         <p className="text-sm text-text-muted">
-          Você concluiu {completedSteps} de {totalSteps} etapas de "{activityTitle}".
+          Você concluiu {completedSteps} de {totalSteps} etapas de &quot;{activityTitle}&quot;.
         </p>
         <p className="text-sm text-text-muted">
           Após concluir, você não poderá mais editar as etapas sem reabrir a atividade.

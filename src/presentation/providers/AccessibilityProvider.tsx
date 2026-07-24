@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useCallback, useEffect, useState } from 'react'
+import { createContext, useCallback, useEffect, useRef, useState } from 'react'
 import type { AccessibilityPreferences, FontSize, ContrastMode, SpacingMode, InterfaceMode, MotionMode } from '@/shared/types'
 import { DEMO_PREFERENCES_KEY } from '@/shared/constants'
 
@@ -62,22 +62,22 @@ function savePreferences(prefs: AccessibilityPreferences) {
 }
 
 export function AccessibilityProvider({ children }: { children: React.ReactNode }) {
-  const [preferences, setPreferences] = useState<AccessibilityPreferences>(DEFAULT_PREFERENCES)
-  const [mounted, setMounted] = useState(false)
+  const [preferences, setPreferences] = useState<AccessibilityPreferences>(() => {
+    if (typeof window !== 'undefined') {
+      return loadFromStorage()
+    }
+    return DEFAULT_PREFERENCES
+  })
+  const isFirstRender = useRef(true)
 
   useEffect(() => {
-    const loaded = loadFromStorage()
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPreferences(loaded)
-    applyDataAttributes(loaded)
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    if (!mounted) return
     applyDataAttributes(preferences)
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
     savePreferences(preferences)
-  }, [preferences, mounted])
+  }, [preferences])
 
   const updateField = useCallback(<K extends keyof AccessibilityPreferences>(
     key: K,

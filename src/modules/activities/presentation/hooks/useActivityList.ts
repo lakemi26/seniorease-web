@@ -26,6 +26,12 @@ export function useActivityList() {
   const [categoryFilter, setCategoryFilter] = useState<Activity['category'] | 'all'>('all')
   const [mode, setMode] = useState<'basic' | 'complete'>('basic')
   const [displayPage, setDisplayPage] = useState(1)
+  const [prevSearchKey, setPrevSearchKey] = useState(searchQuery)
+
+  if (prevSearchKey !== searchQuery) {
+    setPrevSearchKey(searchQuery)
+    setDisplayPage(1)
+  }
 
   const unsubscriberRef = useRef<(() => void) | null>(null)
 
@@ -71,10 +77,6 @@ export function useActivityList() {
   }, [user, statusFilter, periodFilter, categoryFilter])
 
   useEffect(() => {
-    setDisplayPage(1)
-  }, [searchQuery])
-
-  useEffect(() => {
     mountedRef.current = true
     return () => { mountedRef.current = false }
   }, [])
@@ -99,7 +101,7 @@ export function useActivityList() {
   const hasMore = paginatedActivities.length < filteredActivities.length
 
   const loadMore = useCallback(() => {
-    setDisplayPage((prev) => prev + 1)
+    setDisplayPage((p) => p + 1)
   }, [])
 
   const hasActiveFilters =

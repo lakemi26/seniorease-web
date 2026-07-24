@@ -26,7 +26,7 @@ export function StepCompletionFeedback({
       <div>
         <h4 className="text-lg font-semibold text-text">Etapa concluída!</h4>
         <p className="text-sm text-text-muted mt-1">
-          "{stepTitle}" — Etapa {stepNumber} de {totalSteps}
+          &quot;{stepTitle}&quot; — Etapa {stepNumber} de {totalSteps}
         </p>
       </div>
       <Button variant="primary" size="large" onClick={onNext} loading={saving}>

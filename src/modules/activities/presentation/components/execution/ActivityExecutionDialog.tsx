@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { HelpCircle, Lightbulb } from 'lucide-react'
 import { Modal } from '@/presentation/components/ui/Modal'
 import { Button } from '@/presentation/components/ui/Button'
@@ -48,37 +48,35 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
     completeCurrentStep,
     reopenStep,
     completeActivity,
-    reopenActivity,
     setCurrentStepIndex,
   } = useActivityExecution(isOpen ? activityId : null)
 
-  const [view, setView] = useState<ExecutionView>('introduction')
   const [reopenStepId, setReopenStepId] = useState<string | null>(null)
   const [showHelp, setShowHelp] = useState(false)
 
-  useEffect(() => {
-    if (!isOpen) {
+  const derivedView = useMemo((): ExecutionView => {
+    if (!activity) return 'introduction'
+    if (activity.status === 'pending') return 'introduction'
+    if (totalSteps === 0) return 'step'
+    if (allStepsCompleted) return 'completion-confirm'
+    return 'step'
+  }, [activity, totalSteps, allStepsCompleted])
+
+  const [view, setView] = useState<ExecutionView>('introduction')
+  const [prevActId, setPrevActId] = useState<string | null>(null)
+
+  if (prevActId !== activityId) {
+    setPrevActId(activityId)
+    setView(derivedView)
+  }
+
+  if (!isOpen) {
+    if (view !== 'introduction' || reopenStepId !== null || showHelp) {
       setView('introduction')
       setReopenStepId(null)
       setShowHelp(false)
     }
-  }, [isOpen])
-
-  useEffect(() => {
-    if (!activity) return
-
-    if (activity.status === 'pending') {
-      setView('introduction')
-    } else if (activity.status === 'inProgress') {
-    if (totalSteps === 0) {
-        setView('step')
-      } else if (allStepsCompleted) {
-        setView('completion-confirm')
-      } else {
-        setView('step')
-      }
-    }
-  }, [activity, allStepsCompleted, totalSteps])
+  }
 
   const handleStart = useCallback(async () => {
     await startActivity()
@@ -87,14 +85,14 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
     } else {
       setView('step')
     }
-  }, [startActivity, totalSteps])
+  }, [startActivity, totalSteps, setView])
 
   const handleCompleteStep = useCallback(async () => {
     const ok = await completeCurrentStep()
     if (ok) {
       setView('step-feedback')
     }
-  }, [completeCurrentStep])
+  }, [completeCurrentStep, setView])
 
   const handleNextStep = useCallback(() => {
     if (currentStepIndex < totalSteps - 1) {
@@ -105,14 +103,14 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
     } else {
       setView('step')
     }
-  }, [currentStepIndex, totalSteps, allStepsCompleted, setCurrentStepIndex])
+  }, [currentStepIndex, totalSteps, allStepsCompleted, setCurrentStepIndex, setView])
 
   const handlePreviousStep = useCallback(() => {
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1)
       setView('step')
     }
-  }, [currentStepIndex, setCurrentStepIndex])
+  }, [currentStepIndex, setCurrentStepIndex, setView])
 
   const handleConfirmCompletion = useCallback(async () => {
     const ok = await completeActivity()
@@ -126,7 +124,7 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
     await reopenStep(reopenStepId)
     setReopenStepId(null)
     setView('step')
-  }, [reopenStepId, reopenStep])
+  }, [reopenStepId, reopenStep, setView])
 
   const handleClose = useCallback(() => {
     if (saving) return
