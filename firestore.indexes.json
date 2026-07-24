@@ -58,6 +58,16 @@
         { "fieldPath": "reminder.enabled", "order": "ASCENDING" },
         { "fieldPath": "reminder.remindAt", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "activities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "reminder.enabled", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "reminder.remindAt", "order": "ASCENDING" }
+      ]
     }
   ]
 }

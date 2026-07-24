@@ -40,19 +40,35 @@ service cloud.firestore {
                     && request.resource.data.remindersEnabled in [true, false];
     }
 
-    match /activities/{docId} {
-      allow create: if request.auth != null
-                    && request.auth.uid == request.resource.data.userId;
-      allow read:   if request.auth != null
-                    && request.auth.uid == resource.data.userId;
-      allow update: if request.auth != null
-                    && request.auth.uid == resource.data.userId
-                    && request.auth.uid == request.resource.data.userId
-                    && request.resource.data.userId == resource.data.userId
-                    && request.resource.data.createdAt == resource.data.createdAt;
-      allow delete: if request.auth != null
-                    && request.auth.uid == resource.data.userId;
+  match /activities/{docId} {
+    allow create: if request.auth != null
+                  && request.auth.uid == request.resource.data.userId;
+    allow read:   if request.auth != null
+                  && request.auth.uid == resource.data.userId;
+
+    function isReminderUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(["reminder.readAt", "reminder.dismissedAt", "updatedAt"])
+        && request.resource.data.reminder.readAt is timestamp
+        && request.resource.data.reminder.readAt == resource.data.reminder.readAt
+        || request.resource.data.reminder.dismissedAt is timestamp
+        && request.resource.data.reminder.dismissedAt == resource.data.reminder.dismissedAt;
     }
+
+    allow update: if request.auth != null
+                  && request.auth.uid == resource.data.userId
+                  && (
+                    // full activity update (create/edit)
+                    (request.auth.uid == request.resource.data.userId
+                    && request.resource.data.userId == resource.data.userId
+                    && request.resource.data.createdAt == resource.data.createdAt)
+                    ||
+                    // reminder read/dismiss only
+                    isReminderUpdate()
+                  );
+    allow delete: if request.auth != null
+                  && request.auth.uid == resource.data.userId;
+  }
 
     match /{document=**} {
       allow read, write: if false;
