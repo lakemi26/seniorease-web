@@ -12,6 +12,7 @@ export interface StepDocument {
 export interface ReminderDocument {
   enabled: boolean
   remindAt: Timestamp | null
+  readAt: Timestamp | null
   dismissedAt: Timestamp | null
 }
 
@@ -49,7 +50,7 @@ export interface CreateActivityDocument {
     completed: false
     completedAt: null
   }>
-  reminder: { enabled: boolean; remindAt: Timestamp | null; dismissedAt: null }
+  reminder: { enabled: boolean; remindAt: Timestamp | null; readAt: null; dismissedAt: null }
   startedAt: null
   completedAt: null
   createdAt: unknown
@@ -79,7 +80,7 @@ export interface UpdateActivityDocument {
     completed: boolean
     completedAt: Timestamp | null
   }>
-  reminder?: { enabled: boolean; remindAt: Timestamp | null; dismissedAt?: Timestamp | null }
+  reminder?: { enabled: boolean; remindAt: Timestamp | null; readAt?: Timestamp | null; dismissedAt?: Timestamp | null }
   startedAt?: Timestamp | null
   completedAt?: Timestamp | null
   updatedAt: unknown

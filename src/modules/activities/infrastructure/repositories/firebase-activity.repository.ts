@@ -13,6 +13,7 @@ import {
   deleteDoc,
   doc,
   runTransaction,
+  writeBatch,
   Timestamp,
   serverTimestamp,
   type DocumentSnapshot,
@@ -515,6 +516,96 @@ export function createFirebaseActivityRepository(): IActivityRepository {
     return result
   }
 
+  function subscribeToActiveReminders(
+    userId: string,
+    onData: (activities: Activity[]) => void,
+    onError?: (error: Error) => void
+  ): Unsubscribe {
+    const db = getDb()
+    const ref = collection(db, 'activities')
+
+    const q = query(
+      ref,
+      where('userId', '==', userId),
+      where('reminder.enabled', '==', true),
+      where('status', 'in', ['pending', 'inProgress']),
+      orderBy('reminder.remindAt', 'asc'),
+      limit(50)
+    )
+
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const source = snapshot.metadata.fromCache ? 'cache' : 'server'
+        if (snapshot.docChanges().length > 0) {
+          console.info(`[Firestore] subscribeToActiveReminders | source=${source} | changes=${snapshot.docChanges().length}`)
+        }
+
+        const docs = snapshot.docs.map((d) => {
+          const data = { id: d.id, ...d.data() } as ActivityDocument
+          return data
+        })
+
+        const mapped = mapActivityDocuments(docs)
+
+        const valid = mapped.filter((a) => {
+          if (a.reminder.dismissedAt) return false
+          if (a.status === 'completed' || a.status === 'cancelled') return false
+          return true
+        })
+
+        onData(valid)
+      },
+      (error) => {
+        onError?.(error)
+      }
+    )
+  }
+
+  async function markReminderAsRead(activityId: string, userId: string): Promise<void> {
+    const db = getDb()
+    const docRef = doc(db, 'activities', activityId)
+
+    await runTransaction(db, async (transaction) => {
+      const snapshot = await transaction.get(docRef)
+      if (!snapshot.exists()) {
+        throw new Error('Atividade não encontrada.')
+      }
+
+      const data = snapshot.data() as ActivityDocument
+      if (data.userId !== userId) {
+        throw new Error('Acesso negado.')
+      }
+
+      if (data.reminder.readAt) return
+
+      transaction.update(docRef, {
+        'reminder.readAt': serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      })
+    })
+  }
+
+  async function markAllRemindersAsRead(activityIds: string[], userId: string): Promise<void> {
+    const db = getDb()
+    const batchSize = 10
+
+    for (let i = 0; i < activityIds.length; i += batchSize) {
+      const batch = writeBatch(db)
+      const slice = activityIds.slice(i, i + batchSize)
+
+      for (const id of slice) {
+        const docRef = doc(db, 'activities', id)
+        batch.update(docRef, {
+          'reminder.readAt': serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        })
+      }
+
+      await batch.commit()
+    }
+  }
+
   function subscribeToCompletedActivities(
     userId: string,
     filters: ActivityHistoryFilters,
@@ -754,7 +845,10 @@ export function createFirebaseActivityRepository(): IActivityRepository {
     subscribeToInProgressActivities,
     subscribeToRecentCompletedActivities,
     subscribeToDueReminders,
+    subscribeToActiveReminders,
     dismissReminder,
+    markReminderAsRead,
+    markAllRemindersAsRead,
     subscribeToCompletedActivities,
     subscribeToActivitiesByPeriod,
     fetchCompletedActivitiesPage,

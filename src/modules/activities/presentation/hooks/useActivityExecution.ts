@@ -45,7 +45,7 @@ export function useActivityExecution(activityId: string | null) {
   const [currentStepIndex, setCurrentStepIndexState] = useState(0)
   const [prevStepKey, setPrevStepKey] = useState<{ id: string | null; stepsKey: string }>({ id: null, stepsKey: '' })
 
-  if (prevStepKey.id !== activityId || prevStepKey.stepsKey !== stepsKey) {
+  if (prevStepKey.id !== activityId) {
     setPrevStepKey({ id: activityId, stepsKey })
     setCurrentStepIndexState(nextPendingIndex >= 0 ? nextPendingIndex : 0)
   }

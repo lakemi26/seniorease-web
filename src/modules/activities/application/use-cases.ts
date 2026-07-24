@@ -232,6 +232,35 @@ export function createActivityUseCases(repository: IActivityRepository) {
     return repository.dismissReminder(activityId, userId)
   }
 
+  function subscribeToActiveReminders(
+    userId: string,
+    onData: (activities: Activity[]) => void,
+    onError?: (error: Error) => void
+  ): Unsubscribe {
+    if (!userId) {
+      throw new ActivityError('Usuário não identificado.')
+    }
+    return repository.subscribeToActiveReminders(userId, onData, onError)
+  }
+
+  async function markReminderAsRead(activityId: string, userId: string): Promise<void> {
+    if (!userId) {
+      throw new ActivityError('Usuário não identificado.')
+    }
+    if (!activityId) {
+      throw new ActivityError('Atividade não identificada.')
+    }
+    return repository.markReminderAsRead(activityId, userId)
+  }
+
+  async function markAllRemindersAsRead(activityIds: string[], userId: string): Promise<void> {
+    if (!userId) {
+      throw new ActivityError('Usuário não identificado.')
+    }
+    if (activityIds.length === 0) return
+    return repository.markAllRemindersAsRead(activityIds, userId)
+  }
+
   function subscribeToActivityHistory(
     userId: string,
     filters: ActivityHistoryFilters,
@@ -353,7 +382,10 @@ export function createActivityUseCases(repository: IActivityRepository) {
     subscribeToInProgressActivities,
     subscribeToRecentCompletedActivities,
     subscribeToDueReminders,
+    subscribeToActiveReminders,
     dismissReminder,
+    markReminderAsRead,
+    markAllRemindersAsRead,
     subscribeToActivityHistory,
     subscribeToCalendarActivities,
     fetchCompletedActivitiesPage,

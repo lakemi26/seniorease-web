@@ -217,6 +217,7 @@ export function useActivityForm({ mode, initialValues, onSuccess }: UseActivityF
             enabled: data.reminderOption !== 'none',
             remindAt: remindAt,
             dismissedAt: null,
+            readAt: null,
           },
         }
 

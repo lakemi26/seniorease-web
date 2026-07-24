@@ -15,6 +15,7 @@ export interface ActivityStep {
 export interface ActivityReminder {
   enabled: boolean
   remindAt: Date | null
+  readAt: Date | null
   dismissedAt: Date | null
 }
 

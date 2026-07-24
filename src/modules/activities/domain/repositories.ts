@@ -46,7 +46,17 @@ export interface IActivityRepository {
     onError?: (error: Error) => void
   ): Unsubscribe
 
+  subscribeToActiveReminders(
+    userId: string,
+    onData: (activities: Activity[]) => void,
+    onError?: (error: Error) => void
+  ): Unsubscribe
+
   dismissReminder(activityId: string, userId: string): Promise<Activity>
+
+  markReminderAsRead(activityId: string, userId: string): Promise<void>
+
+  markAllRemindersAsRead(activityIds: string[], userId: string): Promise<void>
 
   subscribeToCompletedActivities(
     userId: string,

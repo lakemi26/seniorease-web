@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { AuthGuard } from '@/modules/authentication/presentation/components/AuthGuard'
 import { useAuth } from '@/presentation/hooks/useAuth'
@@ -7,6 +8,7 @@ import { useAccessibility } from '@/presentation/hooks/useAccessibility'
 import { useDashboard } from '@/modules/dashboard/presentation/hooks/useDashboard'
 import { DashboardLayout } from '@/modules/dashboard/presentation/components/DashboardLayout'
 import { DashboardSkeleton } from '@/modules/dashboard/presentation/components/DashboardSkeleton'
+import { useNotifications } from '@/notifications/presentation/hooks/useNotifications'
 import { ErrorState } from '@/modules/dashboard/presentation/components/ErrorState'
 import { WelcomeSection } from '@/modules/dashboard/presentation/components/WelcomeSection'
 import { NextActivityCard } from '@/modules/dashboard/presentation/components/NextActivityCard'
@@ -28,16 +30,50 @@ function DashboardInner() {
     inProgressActivities,
     recentCompleted,
     weeklySummary,
-    dueReminders,
-    remindersLoading,
-    remindersError,
-    dismissingId,
-    remindersEnabled,
-    dismissReminder,
     loading,
     error,
     retry,
   } = useDashboard()
+
+  const {
+    dueNotifications,
+    isLoading,
+    error: notifError,
+    markAsRead,
+    dismiss,
+  } = useNotifications()
+
+  const [dismissingId, setDismissingId] = useState<string | null>(null)
+
+  const dueReminders = dueNotifications.map((n) => ({
+    id: n.activityId,
+    title: n.title,
+    scheduledAt: n.scheduledAt,
+    status: n.status === 'upcoming' ? 'pending' as const : 'inProgress' as const,
+    reminder: { enabled: true, remindAt: n.remindAt, readAt: n.readAt, dismissedAt: n.dismissedAt },
+    priority: 'medium' as const,
+    hasTime: true,
+    userId: user?.uid ?? '',
+    description: null,
+    category: 'personal' as const,
+    steps: [],
+    startedAt: null,
+    completedAt: null,
+    createdAt: n.scheduledAt,
+    updatedAt: n.scheduledAt,
+  }))
+  const remindersLoading = isLoading
+  const remindersError = notifError
+  const remindersEnabled = true
+  const dismissReminder = useCallback(async (id: string) => {
+    setDismissingId(id)
+    try {
+      await dismiss(id)
+      await markAsRead(id)
+    } finally {
+      setDismissingId(null)
+    }
+  }, [dismiss, markAsRead])
   const router = useRouter()
 
   const isComplete = interfaceMode === 'complete'

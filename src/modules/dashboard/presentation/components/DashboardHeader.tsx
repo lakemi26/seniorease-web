@@ -1,11 +1,12 @@
 'use client'
 
-import { Bell, SlidersHorizontal } from 'lucide-react'
+import { SlidersHorizontal } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Logo } from '@/presentation/components/layout/Logo'
 import { IconButton } from '@/presentation/components/ui/IconButton'
 import { ProfileMenu } from './ProfileMenu'
+import { NotificationBell } from '@/notifications/presentation/components/NotificationBell'
 import { useAccessibility } from '@/presentation/hooks/useAccessibility'
 
 function getGreeting(): string {
@@ -43,14 +44,7 @@ export function DashboardHeader() {
             {formatDate()}
           </p>
 
-          {interfaceMode === 'complete' && (
-            <IconButton
-              icon={<Bell className="w-5 h-5" aria-hidden="true" />}
-              ariaLabel="Notificações"
-              size="normal"
-              className="text-text-muted hover:text-text hover:bg-primary-light"
-            />
-          )}
+          <NotificationBell />
 
           <IconButton
             icon={<SlidersHorizontal className="w-5 h-5" aria-hidden="true" />}

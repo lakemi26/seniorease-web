@@ -21,7 +21,7 @@ function makeDoc(overrides?: Partial<ActivityDocument>): ActivityDocument {
     status: 'pending',
     priority: 'medium',
     steps: [],
-    reminder: { enabled: false, remindAt: null, dismissedAt: null },
+    reminder: { enabled: false, remindAt: null, dismissedAt: null, readAt: null },
     startedAt: null,
     completedAt: null,
     createdAt: now,
@@ -62,7 +62,7 @@ describe('mapActivityDocument', () => {
   })
 
   it('converte reminder.remindAt null para null', () => {
-    const doc = makeDoc({ reminder: { enabled: false, remindAt: null, dismissedAt: null } })
+    const doc = makeDoc({ reminder: { enabled: false, remindAt: null, dismissedAt: null, readAt: null } })
     const result = mapActivityDocument(doc)
     expect(result.reminder.remindAt).toBeNull()
   })
@@ -89,7 +89,7 @@ describe('toFirestoreCreateDocument', () => {
       hasTime: true,
       priority: 'high',
       steps: [{ id: 's1', title: 'Passo 1', order: 1 }],
-      reminder: { enabled: true, remindAt: new Date('2026-07-20T13:00:00'), dismissedAt: null },
+      reminder: { enabled: true, remindAt: new Date('2026-07-20T13:00:00'), dismissedAt: null, readAt: null },
     }
 
     const doc = toFirestoreCreateDocument(input)

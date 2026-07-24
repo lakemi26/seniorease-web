@@ -23,6 +23,7 @@ export function mapActivityDocument(doc: ActivityDocument): Activity {
     reminder: {
       enabled: doc.reminder.enabled,
       remindAt: doc.reminder.remindAt instanceof Timestamp ? doc.reminder.remindAt.toDate() : null,
+      readAt: doc.reminder.readAt instanceof Timestamp ? doc.reminder.readAt.toDate() : null,
       dismissedAt: doc.reminder.dismissedAt instanceof Timestamp ? doc.reminder.dismissedAt.toDate() : null,
     },
     startedAt: doc.startedAt instanceof Timestamp ? doc.startedAt.toDate() : null,
@@ -58,6 +59,7 @@ export function toFirestoreCreateDocument(input: CreateActivityInput): CreateAct
       remindAt: input.reminder.remindAt
         ? (input.reminder.remindAt as unknown as Timestamp)
         : null,
+      readAt: null,
       dismissedAt: null,
     },
     startedAt: null,
@@ -90,6 +92,8 @@ export function toFirestoreUpdateDocument(input: Partial<CreateActivityInput>): 
         remindAt: input.reminder.remindAt
           ? (input.reminder.remindAt as unknown as Timestamp)
           : null,
+        readAt: null,
+        dismissedAt: null,
       },
     }),
     updatedAt: serverTimestamp() as unknown,

@@ -95,15 +95,14 @@ export function ActivityExecutionDialog({ activityId, isOpen, onClose }: Activit
   }, [completeCurrentStep, setView])
 
   const handleNextStep = useCallback(() => {
-    if (currentStepIndex < totalSteps - 1) {
-      setCurrentStepIndex(currentStepIndex + 1)
-    }
-    if (allStepsCompleted) {
-      setView('completion-confirm')
-    } else {
+    const nextIdx = sortedSteps.findIndex((s, i) => i > currentStepIndex && !s.completed)
+    if (nextIdx >= 0) {
+      setCurrentStepIndex(nextIdx)
       setView('step')
+    } else {
+      setView('completion-confirm')
     }
-  }, [currentStepIndex, totalSteps, allStepsCompleted, setCurrentStepIndex, setView])
+  }, [currentStepIndex, sortedSteps, setCurrentStepIndex, setView])
 
   const handlePreviousStep = useCallback(() => {
     if (currentStepIndex > 0) {
