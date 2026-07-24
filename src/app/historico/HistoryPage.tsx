@@ -37,24 +37,6 @@ export function HistoryPage() {
     router.replace(`/historico?${params.toString()}`)
   }
 
-  if (loading) {
-    return (
-      <>
-        <LiveRegion message="Carregando seu histórico." />
-        <ActivityHistorySkeleton />
-      </>
-    )
-  }
-
-  if (error) {
-    return (
-      <ErrorState
-        message="Não foi possível carregar o histórico. Verifique sua conexão e tente novamente."
-        onRetry={() => window.location.reload()}
-      />
-    )
-  }
-
   const isFiltered = filters.period !== 'all' || filters.category !== 'all' || !!filters.search
   const isEmpty = activities.length === 0 && !isFiltered
   const isFilterEmpty = activities.length === 0 && isFiltered
@@ -62,7 +44,7 @@ export function HistoryPage() {
   return (
     <>
       <LiveRegion
-        message={activities.length > 0 ? `${activities.length} atividades carregadas` : ''}
+        message={loading ? 'Carregando histórico.' : activities.length > 0 ? `${activities.length} atividades carregadas` : ''}
       />
 
       <div className="flex flex-col gap-6">
@@ -72,19 +54,29 @@ export function HistoryPage() {
           onClear={clearFilters}
         />
 
-        {isEmpty && <ActivityHistoryEmptyState variant="empty" />}
-        {isFilterEmpty && (
-          <ActivityHistoryEmptyState variant="filter-empty" onClearFilters={clearFilters} />
-        )}
-
-        {!isEmpty && !isFilterEmpty && (
-          <ActivityHistoryList
-            activities={activities}
-            hasMore={hasMore}
-            loadingMore={loadingMore}
-            onLoadMore={loadMore}
-            onView={handleViewDetails}
+        {loading ? (
+          <ActivityHistorySkeleton />
+        ) : error ? (
+          <ErrorState
+            message="Não foi possível carregar o histórico. Verifique sua conexão e tente novamente."
+            onRetry={() => window.location.reload()}
           />
+        ) : (
+          <>
+            {isEmpty && <ActivityHistoryEmptyState variant="empty" />}
+            {isFilterEmpty && (
+              <ActivityHistoryEmptyState variant="filter-empty" onClearFilters={clearFilters} />
+            )}
+            {!isEmpty && !isFilterEmpty && (
+              <ActivityHistoryList
+                activities={activities}
+                hasMore={hasMore}
+                loadingMore={loadingMore}
+                onLoadMore={loadMore}
+                onView={handleViewDetails}
+              />
+            )}
+          </>
         )}
 
         <ActivityModalController />

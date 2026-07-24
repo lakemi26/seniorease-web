@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect, useId } from 'react'
 import { Button } from '@/presentation/components/ui/Button'
 import { useAccessibility } from '@/presentation/hooks/useAccessibility'
 import type { ActivityHistoryFilters as Filters } from '../../../domain/repositories'
@@ -16,6 +16,7 @@ interface ActivityHistoryFiltersProps {
 export function ActivityHistoryFilters({ filters, onApply, onClear }: ActivityHistoryFiltersProps) {
   const { interface: interfaceMode } = useAccessibility()
   const isComplete = interfaceMode === 'complete'
+  const searchId = useId()
 
   const [period, setPeriod] = useState<Filters['period']>(filters.period)
   const [category, setCategory] = useState<ActivityCategory | 'all'>(filters.category)
@@ -23,6 +24,21 @@ export function ActivityHistoryFilters({ filters, onApply, onClear }: ActivityHi
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [dateError, setDateError] = useState<string | null>(null)
+
+  const periodRef = useRef(period)
+  periodRef.current = period
+  const categoryRef = useRef(category)
+  categoryRef.current = category
+
+  useEffect(() => {
+    const currentSearch = search || ''
+    const filterSearch = filters.search || ''
+    if (currentSearch === filterSearch) return
+    const timer = setTimeout(() => {
+      onApply({ period: periodRef.current, category: categoryRef.current, search: currentSearch || undefined })
+    }, 350)
+    return () => clearTimeout(timer)
+  }, [search, filters.search, onApply])
 
   const handlePeriodChange = useCallback((p: Filters['period']) => {
     setPeriod(p)
@@ -51,10 +67,6 @@ export function ActivityHistoryFilters({ filters, onApply, onClear }: ActivityHi
     setCategory(cat)
     onApply({ period, category: cat, search: search || undefined })
   }, [period, search, onApply])
-
-  const handleSearch = useCallback(() => {
-    onApply({ period, category, search: search || undefined })
-  }, [period, category, search, onApply])
 
   return (
     <div className="flex flex-col gap-4">
@@ -104,21 +116,17 @@ export function ActivityHistoryFilters({ filters, onApply, onClear }: ActivityHi
             ))}
           </select>
 
-          <div className="flex gap-2">
-            <label className="sr-only" htmlFor="history-search">Buscar no histórico</label>
+          <div className="flex-1 min-w-[200px]">
+            <label className="sr-only" htmlFor={searchId}>Buscar no histórico</label>
             <input
-              id="history-search"
+              id={searchId}
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="Digite o nome da atividade"
-              className="px-3 py-1.5 text-xs rounded-md border border-border bg-surface text-text flex-1 min-w-[200px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              className="w-full px-3 py-1.5 text-xs rounded-md border border-border bg-surface text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus placeholder:text-text-muted"
               aria-label="Buscar no histórico"
             />
-            <Button variant="outline" size="normal" onClick={handleSearch}>
-              Buscar
-            </Button>
           </div>
         </div>
       )}
