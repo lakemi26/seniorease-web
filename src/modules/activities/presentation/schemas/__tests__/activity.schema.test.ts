@@ -6,7 +6,7 @@ const validData = {
   description: '',
   category: 'health' as const,
   date: '2026-12-25',
-  hasTime: true,
+  hasTime: false,
   time: '14:00',
   priority: 'medium' as const,
   steps: [],
@@ -61,8 +61,12 @@ describe('activityFormSchema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('deve rejeitar hasTime true sem horário', () => {
-    const result = activityFormSchema.safeParse({ ...validData, time: '' })
+  it('deve rejeitar hasTime false sem horário', () => {
+    const result = activityFormSchema.safeParse({
+      ...validData,
+      hasTime: false,
+      time: '',
+    })
     expect(result.success).toBe(false)
     if (!result.success) {
       const paths = result.error.issues.map((i) => i.path.join('.'))
@@ -70,10 +74,10 @@ describe('activityFormSchema', () => {
     }
   })
 
-  it('deve aceitar hasTime false sem horário', () => {
+  it('deve aceitar hasTime true sem horário', () => {
     const result = activityFormSchema.safeParse({
       ...validData,
-      hasTime: false,
+      hasTime: true,
       time: '',
     })
     expect(result.success).toBe(true)

@@ -96,7 +96,7 @@ export function useActivityForm({ mode, initialValues, onSuccess }: UseActivityF
         description: '',
         category: undefined as unknown as ActivityCategory,
         date: '',
-        hasTime: true,
+        hasTime: false,
         time: '',
         priority: 'medium' as ActivityPriority,
         steps: [],

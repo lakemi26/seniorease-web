@@ -44,7 +44,7 @@ export const activityFormSchema = z
       .default(''),
     category: z.enum(activityCategoryValues, 'Selecione uma categoria.'),
     date: z.string().min(1, 'Selecione uma data.'),
-    hasTime: z.boolean().default(true),
+    hasTime: z.boolean().default(false),
     time: z.string().optional().default(''),
     priority: z.enum(activityPriorityValues, 'Selecione uma prioridade.'),
     steps: z.array(stepSchema).default([]),
@@ -54,11 +54,11 @@ export const activityFormSchema = z
     confirmPastDate: z.boolean().optional().default(false),
   })
   .superRefine((data, ctx) => {
-    if (data.hasTime && !data.time) {
+    if (!data.hasTime && !data.time) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['time'],
-        message: 'Informe o horário ou marque "Sem horário definido".',
+        message: 'Informe o horário.',
       })
     }
 
@@ -74,6 +74,8 @@ export const activityFormSchema = z
     }
 
     if (
+      !data.hasTime &&
+      data.time &&
       scheduledDate < now &&
       !data.confirmPastDate
     ) {
@@ -85,7 +87,7 @@ export const activityFormSchema = z
     }
 
     if (data.reminderOption !== 'none' && data.reminderOption !== 'custom') {
-      if (!data.hasTime) {
+      if (data.hasTime) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['reminderOption'],

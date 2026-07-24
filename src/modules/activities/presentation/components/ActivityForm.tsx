@@ -1,6 +1,7 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
+import { CalendarDays } from 'lucide-react'
 import { useActivityForm } from '../hooks/useActivityForm'
 import { FormField } from '@/presentation/components/forms/FormField'
 import { LoadingButton } from '@/presentation/components/feedback/LoadingButton'
@@ -36,6 +37,50 @@ export function ActivityForm({ mode = 'create', initialValues, onSuccess, onCanc
     stepsArray,
     form,
   } = useActivityForm({ mode, initialValues, onSuccess })
+
+  const dateInputRef = useRef<HTMLInputElement>(null)
+
+  const [dateDisplay, setDateDisplay] = useState(() => {
+    const iso = form.watch('date')
+    if (!iso) return ''
+    const [y, m, d] = iso.split('-')
+    return `${d}/${m}/${y}`
+  })
+
+  const syncDateDisplay = (iso: string) => {
+    if (!iso) {
+      setDateDisplay('')
+      return
+    }
+    const [y, m, d] = iso.split('-')
+    setDateDisplay(`${d}/${m}/${y}`)
+  }
+
+  const handleCalendarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const iso = e.target.value
+    syncDateDisplay(iso)
+    setValue('date', iso, { shouldValidate: true })
+  }
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 8)
+    let formatted = ''
+    if (digits.length <= 2) {
+      formatted = digits
+    } else if (digits.length <= 4) {
+      formatted = digits.slice(0, 2) + '/' + digits.slice(2)
+    } else {
+      formatted = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4)
+    }
+    setDateDisplay(formatted)
+
+    if (formatted.length === 10) {
+      const [d, m, y] = formatted.split('/')
+      setValue('date', `${y}-${m}-${d}`, { shouldValidate: true })
+    } else {
+      setValue('date', '', { shouldValidate: true })
+    }
+  }
 
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -114,14 +159,40 @@ export function ActivityForm({ mode = 'create', initialValues, onSuccess, onCanc
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1">
               <label htmlFor="date" className="sr-only">Data</label>
-              <input
-                {...register('date')}
-                type="date"
-                id="date"
-                disabled={isSubmitting}
-                aria-invalid={!!errors.date || undefined}
-                className="w-full px-4 py-2.5 rounded-md border bg-surface text-text text-base min-h-[2.75rem] transition-colors duration-normal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:opacity-50 disabled:cursor-not-allowed border-border hover:border-primary"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  id="date"
+                  value={dateDisplay}
+                  onChange={handleDateChange}
+                  placeholder="DD/MM/AAAA"
+                  disabled={isSubmitting}
+                  aria-invalid={!!errors.date || undefined}
+                  className="flex-1 w-full px-4 py-2.5 rounded-md border bg-surface text-text text-base min-h-[2.75rem] transition-colors duration-normal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:opacity-50 disabled:cursor-not-allowed border-border hover:border-primary"
+                />
+                <div className="shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => dateInputRef.current?.showPicker()}
+                    disabled={isSubmitting}
+                    aria-label="Abrir calendário"
+                    className="inline-flex items-center justify-center w-[2.75rem] h-[2.75rem] rounded-md border border-border bg-surface text-text-muted hover:text-text hover:bg-primary-light transition-colors duration-normal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <CalendarDays className="w-5 h-5" aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+              <div className="relative h-2 mt-0.5">
+                <input
+                  type="date"
+                  ref={dateInputRef}
+                  value={form.watch('date')}
+                  onChange={handleCalendarChange}
+                  className="absolute inset-0 opacity-0"
+                  tabIndex={-1}
+                />
+              </div>
               {errors.date && (
                 <p role="alert" className="text-xs text-danger mt-0.5">{errors.date.message}</p>
               )}
@@ -135,7 +206,7 @@ export function ActivityForm({ mode = 'create', initialValues, onSuccess, onCanc
                     {...register('time')}
                     type="time"
                     id="time"
-                    disabled={isSubmitting || !hasTime}
+                    disabled={isSubmitting || hasTime}
                     aria-invalid={!!errors.time || undefined}
                     className="w-full px-4 py-2.5 rounded-md border bg-surface text-text text-base min-h-[2.75rem] transition-colors duration-normal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:opacity-50 disabled:cursor-not-allowed border-border hover:border-primary"
                   />
@@ -153,7 +224,7 @@ export function ActivityForm({ mode = 'create', initialValues, onSuccess, onCanc
               {...register('hasTime')}
               onChange={(e) => {
                 setValue('hasTime', e.target.checked, { shouldValidate: true })
-                if (!e.target.checked) {
+                if (e.target.checked) {
                   setValue('time', '')
                 }
               }}
