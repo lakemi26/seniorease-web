@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { Timestamp } from 'firebase/firestore'
-import { mapActivityDocument, mapActivityDocuments, toFirestoreCreateDocument } from '../mappers/activity.mapper'
+import {
+  mapActivityDocument,
+  mapActivityDocuments,
+  toFirestoreCreateDocument,
+} from '../mappers/activity.mapper'
 import type { ActivityDocument } from '../mappers/types'
 import type { CreateActivityInput } from '../../domain/entities'
 
@@ -17,7 +21,7 @@ function makeDoc(overrides?: Partial<ActivityDocument>): ActivityDocument {
     status: 'pending',
     priority: 'medium',
     steps: [],
-    reminder: { enabled: false, remindAt: null },
+    reminder: { enabled: false, remindAt: null, dismissedAt: null },
     startedAt: null,
     completedAt: null,
     createdAt: now,
@@ -58,7 +62,7 @@ describe('mapActivityDocument', () => {
   })
 
   it('converte reminder.remindAt null para null', () => {
-    const doc = makeDoc({ reminder: { enabled: false, remindAt: null } })
+    const doc = makeDoc({ reminder: { enabled: false, remindAt: null, dismissedAt: null } })
     const result = mapActivityDocument(doc)
     expect(result.reminder.remindAt).toBeNull()
   })
@@ -85,7 +89,7 @@ describe('toFirestoreCreateDocument', () => {
       hasTime: true,
       priority: 'high',
       steps: [{ id: 's1', title: 'Passo 1', order: 1 }],
-      reminder: { enabled: true, remindAt: new Date('2026-07-20T13:00:00') },
+      reminder: { enabled: true, remindAt: new Date('2026-07-20T13:00:00'), dismissedAt: null },
     }
 
     const doc = toFirestoreCreateDocument(input)
